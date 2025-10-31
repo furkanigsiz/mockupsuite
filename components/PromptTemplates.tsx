@@ -1,6 +1,8 @@
 import React from 'react';
 import { PromptTemplate } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useAuth } from './AuthProvider';
+import * as offlineDataService from '../services/offlineDataService';
 import TrashIcon from './icons/TrashIcon';
 
 interface PromptTemplatesProps {
@@ -11,9 +13,18 @@ interface PromptTemplatesProps {
 
 const PromptTemplates: React.FC<PromptTemplatesProps> = ({ templates, setTemplates, onSelectTemplate }) => {
   const { t } = useTranslations();
+  const { user } = useAuth();
 
-  const handleRemoveTemplate = (id: string) => {
-    setTemplates(templates.filter(t => t.id !== id));
+  const handleRemoveTemplate = async (id: string) => {
+    if (!user) return;
+    
+    try {
+      await offlineDataService.deletePromptTemplate(id, user.id);
+      setTemplates(templates.filter(t => t.id !== id));
+    } catch (e) {
+      console.error('Failed to delete prompt template:', e);
+      alert('Failed to delete template. Please try again.');
+    }
   };
   
   if (templates.length === 0) {

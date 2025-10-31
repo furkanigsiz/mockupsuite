@@ -1,7 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Project } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { downloadImage } from '../utils/fileUtils';
+import * as storageService from '../services/storageService';
+import LazyImage from './LazyImage';
 import SearchIcon from './icons/SearchIcon';
 import DownloadIcon from './icons/DownloadIcon';
 import TrashIcon from './icons/TrashIcon';
@@ -24,7 +26,8 @@ interface GalleryPageProps {
 }
 
 type GalleryImage = {
-    base64: string;
+    base64: string; // Storage path
+    url?: string; // Signed URL for display
     projectId: string;
     projectName: string;
     date: number; // For sorting
@@ -33,21 +36,128 @@ type GalleryImage = {
 const GalleryPage: React.FC<GalleryPageProps> = ({ projects, setProjects, onNavigate, onImageClick }) => {
     const { t } = useTranslations();
     const [searchTerm, setSearchTerm] = useState('');
+    const [imageUrls, setImageUrls] = useState<Map<string, string>>(new Map());
+    const [isLoadingUrls, setIsLoadingUrls] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(false);
+    const [nextCursor, setNextCursor] = useState<string | null>(null);
+
+    const [allMockups, setAllMockups] = useState<Array<{
+        id: string;
+        image_path: string;
+        thumbnail_path: string | null;
+        project_id: string;
+        created_at: string;
+    }>>([]);
 
     const allSavedImages: GalleryImage[] = useMemo(() => {
-        return projects.flatMap(p => 
-            p.savedImages.map((img, index) => {
-                // Try to derive a date from project ID, fallback to index
-                const date = parseInt(p.id.split('-')[0], 10) || Date.now() - index;
-                return {
-                    base64: img,
-                    projectId: p.id,
-                    projectName: p.name,
-                    date: date,
-                };
-            })
-        ).sort((a,b) => b.date - a.date); // Show newest first by default
-    }, [projects]);
+        return allMockups.map(mockup => {
+            const project = projects.find(p => p.id === mockup.project_id);
+            // Use full image for gallery display (high quality)
+            return {
+                base64: mockup.image_path, // Storage path (full image)
+                url: imageUrls.get(mockup.image_path), // Signed URL (full image)
+                projectId: mockup.project_id,
+                projectName: project?.name || 'Unknown Project',
+                date: new Date(mockup.created_at).getTime(),
+            };
+        });
+    }, [allMockups, imageUrls, projects]);
+
+    // Load initial paginated mockups
+    useEffect(() => {
+        const loadInitialMockups = async () => {
+            setIsLoadingUrls(true);
+            try {
+                const { getSavedMockupsPaginated } = await import('../services/databaseService');
+                const { authService } = await import('../services/authService');
+                
+                const user = await authService.getCurrentUser();
+                if (!user) {
+                    setIsLoadingUrls(false);
+                    return;
+                }
+
+                const result = await getSavedMockupsPaginated(user.id, 20);
+                setAllMockups(result.mockups);
+                setHasMore(result.hasMore);
+                setNextCursor(result.nextCursor);
+
+                // Load signed URLs for the fetched mockups (full images for quality)
+                const urlMap = new Map<string, string>();
+                for (const mockup of result.mockups) {
+                    try {
+                        // Load full image URL for high quality display
+                        const url = await storageService.getImageUrl(mockup.image_path);
+                        urlMap.set(mockup.image_path, url);
+                    } catch (e) {
+                        console.error('Failed to load image URL:', e);
+                    }
+                }
+                setImageUrls(urlMap);
+            } catch (e) {
+                console.error('Failed to load mockups:', e);
+            } finally {
+                setIsLoadingUrls(false);
+            }
+        };
+
+        loadInitialMockups();
+    }, []);
+
+    // Load more mockups
+    const loadMoreMockups = async () => {
+        if (!nextCursor || isLoadingMore) return;
+
+        setIsLoadingMore(true);
+        try {
+            const { getSavedMockupsPaginated } = await import('../services/databaseService');
+            const { authService } = await import('../services/authService');
+            
+            const user = await authService.getCurrentUser();
+            if (!user) return;
+
+            const result = await getSavedMockupsPaginated(user.id, 20, nextCursor);
+            setAllMockups(prev => [...prev, ...result.mockups]);
+            setHasMore(result.hasMore);
+            setNextCursor(result.nextCursor);
+
+            // Load signed URLs for the new mockups (full images for quality)
+            const urlMap = new Map(imageUrls);
+            for (const mockup of result.mockups) {
+                try {
+                    // Load full image URL for high quality display
+                    const url = await storageService.getImageUrl(mockup.image_path);
+                    urlMap.set(mockup.image_path, url);
+                } catch (e) {
+                    console.error('Failed to load image URL:', e);
+                }
+            }
+            setImageUrls(urlMap);
+        } catch (e) {
+            console.error('Failed to load more mockups:', e);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    };
+
+    // Preload next page when user scrolls near the bottom
+    useEffect(() => {
+        if (!hasMore || isLoadingMore || !nextCursor) return;
+
+        const handleScroll = () => {
+            const scrollPosition = window.innerHeight + window.scrollY;
+            const pageHeight = document.documentElement.scrollHeight;
+            
+            // Preload when user is 80% down the page
+            if (scrollPosition >= pageHeight * 0.8) {
+                loadMoreMockups();
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [hasMore, isLoadingMore, nextCursor]);
     
     const filteredImages = useMemo(() => {
         return allSavedImages.filter(image => {
@@ -57,15 +167,32 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ projects, setProjects, onNavi
         });
     }, [allSavedImages, searchTerm]);
 
-    const handleDelete = (imageToDelete: GalleryImage) => {
-        setProjects(prevProjects => 
-            prevProjects.map(p => {
-                if (p.id === imageToDelete.projectId) {
-                    return { ...p, savedImages: p.savedImages.filter(img => img !== imageToDelete.base64) };
-                }
-                return p;
-            })
-        );
+    const handleDelete = async (imageToDelete: GalleryImage) => {
+        // Import the database and storage services
+        const { deleteMockupByImagePath } = await import('../services/databaseService');
+        const { deleteImage } = await import('../services/storageService');
+        
+        try {
+            // Delete from database and storage
+            await deleteMockupByImagePath(imageToDelete.base64); // base64 field now contains the storage path
+            await deleteImage(imageToDelete.base64);
+            
+            // Update local state - remove from allMockups
+            setAllMockups(prev => prev.filter(m => m.image_path !== imageToDelete.base64));
+            
+            // Also update projects state for consistency
+            setProjects(prevProjects => 
+                prevProjects.map(p => {
+                    if (p.id === imageToDelete.projectId) {
+                        return { ...p, savedImages: p.savedImages.filter(img => img !== imageToDelete.base64) };
+                    }
+                    return p;
+                })
+            );
+        } catch (e) {
+            console.error('Failed to delete image:', e);
+            alert('Failed to delete image. Please try again.');
+        }
     };
 
     return (
@@ -75,10 +202,10 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ projects, setProjects, onNavi
                 <div className="flex items-center gap-2.5 p-6 border-b border-gray-200 dark:border-gray-800">
                     <div className="size-6 text-primary">
                         <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078L44 7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094L4 42.4379Z" fill="currentColor"></path>
+                            <path clipRule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor" fillRule="evenodd"></path>
                         </svg>
                     </div>
-                    <h2 className="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">AI Mockups</h2>
+                    <h2 className="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">MockupSuite</h2>
                 </div>
                 <div className="flex flex-col justify-between flex-1 p-4">
                     <div className="flex flex-col gap-2">
@@ -151,22 +278,50 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ projects, setProjects, onNavi
                         </div>
                         {/* Content Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {filteredImages.map((image, index) => (
-                                <div key={`${image.projectId}-${index}`} className="flex flex-col bg-background-light dark:bg-[#101F22] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                                    <div className="relative aspect-square w-full bg-cover bg-center" style={{backgroundImage: `url(data:image/png;base64,${image.base64})`}}>
-                                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-                                            <button onClick={() => onImageClick(image.base64)} title={t('dashboard_view_button')} className="bg-white/20 backdrop-blur-sm text-white rounded-full size-10 flex items-center justify-center hover:bg-white/30"><VisibilityIcon /></button>
-                                            <button onClick={() => downloadImage(image.base64, `${image.projectName}_mockup.png`)} title={t('download_button')} className="bg-white/20 backdrop-blur-sm text-white rounded-full size-10 flex items-center justify-center hover:bg-white/30"><DownloadIcon /></button>
-                                            <button onClick={() => handleDelete(image)} title={t('delete_button')} className="bg-white/20 backdrop-blur-sm text-red-400 rounded-full size-10 flex items-center justify-center hover:bg-white/30"><TrashIcon /></button>
-                                        </div>
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="text-gray-900 dark:text-white font-bold truncate">{image.projectName} Mockup</h3>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard_card_created')}: {new Date(image.date).toLocaleDateString()}</p>
-                                    </div>
+                            {isLoadingUrls ? (
+                                <div className="sm:col-span-2 lg:col-span-3 xl:col-span-4 flex items-center justify-center p-12">
+                                    <p className="text-gray-500 dark:text-gray-400">Loading images...</p>
                                 </div>
-                            ))}
-                            {filteredImages.length === 0 && (
+                            ) : (
+                                filteredImages.map((image, index) => {
+                                    if (!image.url) return null;
+                                    
+                                    return (
+                                        <div key={`${image.projectId}-${index}`} className="flex flex-col bg-background-light dark:bg-[#101F22] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                                            <div className="relative aspect-square w-full">
+                                                <LazyImage
+                                                    src={image.url}
+                                                    alt={`${image.projectName} Mockup`}
+                                                    className="w-full h-full"
+                                                />
+                                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                                                    <button onClick={() => onImageClick(image.url!)} title={t('dashboard_view_button')} className="bg-white/20 backdrop-blur-sm text-white rounded-full size-10 flex items-center justify-center hover:bg-white/30"><VisibilityIcon /></button>
+                                                    <button onClick={() => {
+                                                        // Fetch and download
+                                                        fetch(image.url!)
+                                                            .then(res => res.blob())
+                                                            .then(blob => {
+                                                                const reader = new FileReader();
+                                                                reader.onloadend = () => {
+                                                                    const base64 = reader.result as string;
+                                                                    downloadImage(base64.split(',')[1], `${image.projectName}_mockup.png`);
+                                                                };
+                                                                reader.readAsDataURL(blob);
+                                                            })
+                                                            .catch(e => console.error('Failed to download image:', e));
+                                                    }} title={t('download_button')} className="bg-white/20 backdrop-blur-sm text-white rounded-full size-10 flex items-center justify-center hover:bg-white/30"><DownloadIcon /></button>
+                                                    <button onClick={() => handleDelete(image)} title={t('delete_button')} className="bg-white/20 backdrop-blur-sm text-red-400 rounded-full size-10 flex items-center justify-center hover:bg-white/30"><TrashIcon /></button>
+                                                </div>
+                                            </div>
+                                            <div className="p-4">
+                                                <h3 className="text-gray-900 dark:text-white font-bold truncate">{image.projectName} Mockup</h3>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard_card_created')}: {new Date(image.date).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                            {filteredImages.length === 0 && !isLoadingUrls && (
                                 <div className="sm:col-span-2 lg:col-span-3 xl:col-span-4 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 p-12 text-center flex flex-col items-center justify-center">
                                     <div className="bg-primary/10 text-primary rounded-full p-4 mb-4">
                                         <AddPhotoAlternateIcon className="!text-4xl h-10 w-10"/>
@@ -179,6 +334,25 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ projects, setProjects, onNavi
                                 </div>
                             )}
                         </div>
+                        {/* Load More Button */}
+                        {hasMore && filteredImages.length > 0 && (
+                            <div className="flex justify-center mt-8">
+                                <button
+                                    onClick={loadMoreMockups}
+                                    disabled={isLoadingMore}
+                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-[#111718] rounded-lg font-bold hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isLoadingMore ? (
+                                        <>
+                                            <div className="animate-spin h-5 w-5 border-2 border-[#111718] border-t-transparent rounded-full"></div>
+                                            <span>Loading...</span>
+                                        </>
+                                    ) : (
+                                        <span>Load More</span>
+                                    )}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </main>
             </div>

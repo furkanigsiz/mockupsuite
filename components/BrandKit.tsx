@@ -1,7 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { BrandKit as BrandKitType } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useAuth } from './AuthProvider';
 import { fileToBase64 } from '../utils/fileUtils';
+import * as offlineDataService from '../services/offlineDataService';
+import * as storageService from '../services/storageService';
 import CopyIcon from './icons/CopyIcon';
 import TrashIcon from './icons/TrashIcon';
 import XIcon from './icons/XIcon';
@@ -13,31 +16,62 @@ interface BrandKitProps {
 
 const BrandKit: React.FC<BrandKitProps> = ({ brandKit, setBrandKit }) => {
   const { t } = useTranslations();
+  const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [newColor, setNewColor] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Helper function to save brand kit to database (with offline support)
+  const saveBrandKitToDatabase = async (updatedBrandKit: BrandKitType) => {
+    if (!user) return;
+    
+    setIsSaving(true);
+    try {
+      await offlineDataService.saveBrandKit(user.id, updatedBrandKit);
+    } catch (e) {
+      console.error('Failed to save brand kit:', e);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && user) {
       try {
-        const base64 = await fileToBase64(file);
-        setBrandKit({ ...brandKit, logo: base64 });
+        // Upload logo to storage
+        const logoPath = await storageService.uploadImage(user.id, file, 'logos');
+        
+        // Get signed URL for display
+        const logoUrl = await storageService.getImageUrl(logoPath);
+        
+        // Update local state with signed URL
+        const updatedBrandKit = { ...brandKit, logo: logoUrl };
+        setBrandKit(updatedBrandKit);
+        
+        // Save to database with storage path (not signed URL)
+        await saveBrandKitToDatabase({ ...brandKit, logo: logoPath });
       } catch (error) {
-        console.error('Error processing logo:', error);
+        console.error('Error uploading logo:', error);
+        alert('Failed to upload logo. Please try again.');
       }
     }
   };
   
-  const handleAddColor = (e: React.FormEvent) => {
+  const handleAddColor = async (e: React.FormEvent) => {
       e.preventDefault();
       if (newColor.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/) && !brandKit.colors.includes(newColor)) {
-          setBrandKit({...brandKit, colors: [...brandKit.colors, newColor]});
+          const updatedBrandKit = {...brandKit, colors: [...brandKit.colors, newColor]};
+          setBrandKit(updatedBrandKit);
           setNewColor('');
+          await saveBrandKitToDatabase(updatedBrandKit);
       }
   }
   
-  const handleRemoveColor = (colorToRemove: string) => {
-      setBrandKit({...brandKit, colors: brandKit.colors.filter(c => c !== colorToRemove)});
+  const handleRemoveColor = async (colorToRemove: string) => {
+      const updatedBrandKit = {...brandKit, colors: brandKit.colors.filter(c => c !== colorToRemove)};
+      setBrandKit(updatedBrandKit);
+      await saveBrandKitToDatabase(updatedBrandKit);
   }
   
   const handleCopyColor = (color: string) => {
@@ -54,18 +88,22 @@ const BrandKit: React.FC<BrandKitProps> = ({ brandKit, setBrandKit }) => {
         <div className="flex items-center gap-4">
           <div className="w-20 h-20 bg-gray-700 rounded-md flex items-center justify-center overflow-hidden">
             {brandKit.logo ? (
-              <img src={`data:image/png;base64,${brandKit.logo}`} alt="Brand Logo" className="w-full h-full object-contain" />
+              <img src={brandKit.logo.startsWith('http') ? brandKit.logo : `data:image/png;base64,${brandKit.logo}`} alt="Brand Logo" className="w-full h-full object-contain" />
             ) : (
               <span className="text-xs text-gray-500 text-center">No Logo</span>
             )}
           </div>
           <div className="flex-1">
             <input type="file" ref={fileInputRef} className="hidden" accept="image/png" onChange={handleLogoUpload} />
-            <button onClick={() => fileInputRef.current?.click()} className="w-full text-sm font-semibold py-2 px-4 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors">
-              {brandKit.logo ? t('logo_replace_cta') : t('logo_upload_cta')}
+            <button onClick={() => fileInputRef.current?.click()} className="w-full text-sm font-semibold py-2 px-4 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors" disabled={isSaving}>
+              {isSaving ? 'Uploading...' : (brandKit.logo ? t('logo_replace_cta') : t('logo_upload_cta'))}
             </button>
              {brandKit.logo && (
-              <button onClick={() => setBrandKit({...brandKit, logo: null})} className="w-full text-sm text-red-400 hover:text-red-300 mt-2">
+              <button onClick={async () => {
+                const updatedBrandKit = {...brandKit, logo: null};
+                setBrandKit(updatedBrandKit);
+                await saveBrandKitToDatabase(updatedBrandKit);
+              }} className="w-full text-sm text-red-400 hover:text-red-300 mt-2">
                 Remove Logo
               </button>
             )}
@@ -76,7 +114,11 @@ const BrandKit: React.FC<BrandKitProps> = ({ brandKit, setBrandKit }) => {
       {/* Watermark Toggle */}
       <div className="flex items-center justify-between">
         <label htmlFor="useWatermark" className="text-sm font-medium text-gray-300">{t('use_watermark_label')}</label>
-        <button onClick={() => setBrandKit({...brandKit, useWatermark: !brandKit.useWatermark})} className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${brandKit.useWatermark ? 'bg-indigo-600' : 'bg-gray-600'}`}>
+        <button onClick={async () => {
+          const updatedBrandKit = {...brandKit, useWatermark: !brandKit.useWatermark};
+          setBrandKit(updatedBrandKit);
+          await saveBrandKitToDatabase(updatedBrandKit);
+        }} className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${brandKit.useWatermark ? 'bg-primary' : 'bg-gray-600'}`}>
           <span className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${brandKit.useWatermark ? 'translate-x-6' : 'translate-x-1'}`} />
         </button>
       </div>
@@ -90,9 +132,9 @@ const BrandKit: React.FC<BrandKitProps> = ({ brandKit, setBrandKit }) => {
                 value={newColor}
                 onChange={(e) => setNewColor(e.target.value)}
                 placeholder={t('add_color_placeholder') as string}
-                className="flex-1 bg-gray-700 border border-gray-600 rounded-md py-1 px-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                className="flex-1 bg-gray-700 border border-gray-600 rounded-md py-1 px-2 text-sm text-white focus:ring-1 focus:ring-primary focus:border-primary"
             />
-            <button type="submit" className="text-sm font-semibold py-1 px-3 rounded-md bg-indigo-600 hover:bg-indigo-500 transition-colors">{t('add_color_button')}</button>
+            <button type="submit" className="text-sm font-semibold py-1 px-3 rounded-md bg-primary hover:bg-primary/80 transition-colors">{t('add_color_button')}</button>
         </form>
         <div className="flex flex-wrap gap-2">
             {brandKit.colors.map(color => (

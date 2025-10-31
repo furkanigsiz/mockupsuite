@@ -1,5 +1,5 @@
 {
-  "name": "AI Product Mockup Generator",
+  "name": "MockupSuite",
   "description": "Upload a product photo and enter a style instruction. The AI will place your product into multiple high-quality scenes, apply realistic lighting, and generate downloadable mockups.",
   "requestFramePermissions": []
 }

@@ -8,6 +8,10 @@ This contains everything you need to run your app locally.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1-uNHSkwN-GzthmSlwPZExEblV0FpUSJ-
 
+## About MockupSuite
+
+MockupSuite is an AI-powered mockup generator that creates professional product photography and mockups using Google's Gemini AI.
+
 ## Run Locally
 
 **Prerequisites:**  Node.js

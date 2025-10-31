@@ -1,24 +1,67 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DownloadIcon from './icons/DownloadIcon';
 import TrashIcon from './icons/TrashIcon';
 import { useTranslations } from '../hooks/useTranslations';
 import { downloadImage } from '../utils/fileUtils';
+import * as storageService from '../services/storageService';
 
 interface SavedImageGridProps {
-  images: string[];
-  onRemoveImage: (base64Image: string) => void;
-  onImageClick: (base64Image: string) => void;
+  images: string[]; // Storage paths
+  onRemoveImage: (imagePath: string) => void;
+  onImageClick: (imageUrl: string) => void;
 }
 
 const SavedImageGrid: React.FC<SavedImageGridProps> = ({ images, onRemoveImage, onImageClick }) => {
   const { t } = useTranslations();
+  const [imageUrls, setImageUrls] = useState<Map<string, string>>(new Map());
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Convert storage paths to signed URLs
+  useEffect(() => {
+    const loadImageUrls = async () => {
+      setIsLoading(true);
+      const urlMap = new Map<string, string>();
+      
+      for (const path of images) {
+        try {
+          const url = await storageService.getImageUrl(path);
+          urlMap.set(path, url);
+        } catch (e) {
+          console.error('Failed to load image URL:', e);
+        }
+      }
+      
+      setImageUrls(urlMap);
+      setIsLoading(false);
+    };
+
+    if (images.length > 0) {
+      loadImageUrls();
+    } else {
+      setIsLoading(false);
+    }
+  }, [images]);
 
   const handleDownloadAll = () => {
-    images.forEach((img, index) => {
-      // Add a small delay between downloads to prevent the browser from blocking them
-      setTimeout(() => {
-        downloadImage(img, `saved_mockup_${index + 1}.png`);
-      }, index * 200);
+    images.forEach((path, index) => {
+      const url = imageUrls.get(path);
+      if (url) {
+        // Add a small delay between downloads to prevent the browser from blocking them
+        setTimeout(() => {
+          // For signed URLs, we need to fetch and convert to base64
+          fetch(url)
+            .then(res => res.blob())
+            .then(blob => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const base64 = reader.result as string;
+                downloadImage(base64.split(',')[1], `saved_mockup_${index + 1}.png`);
+              };
+              reader.readAsDataURL(blob);
+            })
+            .catch(e => console.error('Failed to download image:', e));
+        }, index * 200);
+      }
     });
   };
 
@@ -36,39 +79,59 @@ const SavedImageGrid: React.FC<SavedImageGridProps> = ({ images, onRemoveImage, 
           </button>
         )}
       </div>
-      {images.length > 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center h-full min-h-[150px]">
+          <p className="text-sm text-neutral-medium">{t('loading_project')}</p>
+        </div>
+      ) : images.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {images.map((img, index) => (
-            <div
-              key={index}
-              className="group relative aspect-square overflow-hidden rounded-lg shadow-lg bg-gray-800 cursor-pointer"
-              onClick={() => onImageClick(img)}
-            >
-              <img src={`data:image/png;base64,${img}`} alt={`Saved Mockup ${index + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    downloadImage(img, `saved_mockup_${index + 1}.png`);
-                  }}
-                  className="flex items-center gap-2 bg-black/50 text-white backdrop-blur-sm font-semibold py-2 px-4 rounded-full opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-100 transition-all duration-300 hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-primary"
-                  title={t('download_button')}
-                >
-                  <DownloadIcon className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemoveImage(img);
-                  }}
-                  className="flex items-center gap-2 bg-red-600/80 text-white backdrop-blur-sm font-semibold py-2 px-4 rounded-full opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-100 transition-all duration-300 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-red-500"
-                  title={t('remove_button')}
-                >
-                  <TrashIcon className="h-5 w-5" />
-                </button>
+          {images.map((path, index) => {
+            const url = imageUrls.get(path);
+            if (!url) return null;
+            
+            return (
+              <div
+                key={path}
+                className="group relative aspect-square overflow-hidden rounded-lg shadow-lg bg-gray-800 cursor-pointer"
+                onClick={() => onImageClick(url)}
+              >
+                <img src={url} alt={`Saved Mockup ${index + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Fetch and download
+                      fetch(url)
+                        .then(res => res.blob())
+                        .then(blob => {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            const base64 = reader.result as string;
+                            downloadImage(base64.split(',')[1], `saved_mockup_${index + 1}.png`);
+                          };
+                          reader.readAsDataURL(blob);
+                        })
+                        .catch(e => console.error('Failed to download image:', e));
+                    }}
+                    className="flex items-center gap-2 bg-black/50 text-white backdrop-blur-sm font-semibold py-2 px-4 rounded-full opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-100 transition-all duration-300 hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-primary"
+                    title={t('download_button')}
+                  >
+                    <DownloadIcon className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveImage(path);
+                    }}
+                    className="flex items-center gap-2 bg-red-600/80 text-white backdrop-blur-sm font-semibold py-2 px-4 rounded-full opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-100 transition-all duration-300 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-red-500"
+                    title={t('remove_button')}
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-full min-h-[150px] border-2 border-dashed border-neutral-medium/40 rounded-lg text-center p-4">

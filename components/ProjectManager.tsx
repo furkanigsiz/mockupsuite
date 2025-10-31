@@ -1,6 +1,8 @@
 import React from 'react';
 import { Project } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useAuth } from './AuthProvider';
+import * as offlineDataService from '../services/offlineDataService';
 import PlusIcon from './icons/PlusIcon';
 import TrashIcon from './icons/TrashIcon';
 
@@ -13,8 +15,11 @@ interface ProjectManagerProps {
 
 const ProjectManager: React.FC<ProjectManagerProps> = ({ projects, setProjects, currentProjectId, setCurrentProjectId }) => {
   const { t } = useTranslations();
+  const { user } = useAuth();
 
-  const handleCreateProject = () => {
+  const handleCreateProject = async () => {
+    if (!user) return;
+    
     const newProjectBaseName = t('new_project_default_name') as string;
     
     // Find highest number among existing projects
@@ -29,7 +34,7 @@ const ProjectManager: React.FC<ProjectManagerProps> = ({ projects, setProjects, 
     const newProjectName = `${newProjectBaseName} ${nextNum}`;
     
     const newProject: Project = {
-      id: Date.now().toString(),
+      id: '',
       name: newProjectName,
       uploadedImages: [],
       prompt: '',
@@ -37,21 +42,34 @@ const ProjectManager: React.FC<ProjectManagerProps> = ({ projects, setProjects, 
       savedImages: [],
       suggestedPrompts: [],
     };
-    const updatedProjects = [...projects, newProject];
-    setProjects(updatedProjects);
-    setCurrentProjectId(newProject.id);
+    
+    try {
+      const createdProject = await offlineDataService.createProject(user.id, newProject);
+      const updatedProjects = [...projects, createdProject];
+      setProjects(updatedProjects);
+      setCurrentProjectId(createdProject.id);
+    } catch (e) {
+      console.error('Failed to create project:', e);
+      alert('Failed to create project. Please try again.');
+    }
   };
 
-  const handleDeleteProject = () => {
+  const handleDeleteProject = async () => {
+    if (!user || !currentProjectId) return;
+    
     if (projects.length <= 1) {
       alert("You cannot delete the last project.");
       return;
     }
-    const projectToDelete = projects.find(p => p.id === currentProjectId);
-    if (projectToDelete) {
+    
+    try {
+      await offlineDataService.deleteProject(currentProjectId, user.id);
       const remainingProjects = projects.filter(p => p.id !== currentProjectId);
       setProjects(remainingProjects);
       setCurrentProjectId(remainingProjects[0]?.id || null);
+    } catch (e) {
+      console.error('Failed to delete project:', e);
+      alert('Failed to delete project. Please try again.');
     }
   };
 
@@ -63,7 +81,7 @@ const ProjectManager: React.FC<ProjectManagerProps> = ({ projects, setProjects, 
             <select
             value={currentProjectId || ''}
             onChange={(e) => setCurrentProjectId(e.target.value)}
-            className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:ring-2 focus:ring-primary focus:border-primary"
             >
             {projects.map(project => (
                 <option key={project.id} value={project.id}>
@@ -77,7 +95,7 @@ const ProjectManager: React.FC<ProjectManagerProps> = ({ projects, setProjects, 
         </div>
         <button
           onClick={handleCreateProject}
-          className="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 px-4 rounded-md bg-indigo-600 hover:bg-indigo-500 transition-colors"
+          className="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 px-4 rounded-md bg-primary hover:bg-primary/80 transition-colors"
         >
           <PlusIcon className="h-4 w-4" />
           {t('create_project_button')}

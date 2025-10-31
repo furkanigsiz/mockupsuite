@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ödeme Callback</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f9fafb;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 500px;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        h1 {
+            color: #111827;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        p {
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+        .token {
+            background: #f3f4f6;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            word-break: break-all;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h1>Ödeme İşleniyor...</h1>
+        <p>Lütfen bekleyin, ödemeniz doğrulanıyor.</p>
+        <div id="token" class="token" style="display: none;"></div>
+    </div>
+
+    <script>
+        // İyzico callback handler
+        // İyzico sends the callback in an iframe, so we need to handle both iframe and direct access
+        async function handleCallback() {
+            let token = null;
+            
+            // Try to get token from URL query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            token = urlParams.get('token');
+            
+            console.log('Payment callback received');
+            console.log('URL:', window.location.href);
+            console.log('Token from URL:', token);
+            console.log('Is in iframe:', window.self !== window.top);
+            
+            // Also check hash fragment
+            if (!token && window.location.hash) {
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                token = hashParams.get('token');
+                console.log('Token from hash:', token);
+            }
+            
+            // If no token in URL, try to get from localStorage (fallback)
+            // This happens when İyzico doesn't append token to callback URL
+            if (!token) {
+                token = localStorage.getItem('pending_payment_token');
+                console.log('Token from localStorage:', token);
+                
+                // Verify this is a recent payment (within last 10 minutes)
+                const paymentTime = localStorage.getItem('pending_payment_time');
+                if (token && paymentTime) {
+                    const elapsed = Date.now() - parseInt(paymentTime);
+                    if (elapsed > 10 * 60 * 1000) {
+                        console.warn('Payment token expired (older than 10 minutes)');
+                        token = null;
+                    }
+                }
+            }
+            
+            if (token) {
+                // Show token for debugging
+                document.getElementById('token').textContent = 'Token: ' + token;
+                document.getElementById('token').style.display = 'block';
+                
+                // Mark payment as completed in localStorage
+                localStorage.setItem('completed_payment_token', token);
+                localStorage.removeItem('pending_payment_token');
+                localStorage.removeItem('pending_payment_time');
+                
+                console.log('Payment completed, token:', token);
+                
+                // Update UI
+                document.querySelector('h1').textContent = 'Ödeme Tamamlandı!';
+                document.querySelector('p').textContent = 'Ödemeniz başarıyla alındı. Pencere kapatılıyor...';
+                document.querySelector('.spinner').style.display = 'none';
+                
+                // If we're in a popup window (opened by window.open)
+                if (window.opener && !window.opener.closed) {
+                    console.log('Running in popup, posting message to opener');
+                    // Send message to opener window
+                    window.opener.postMessage({
+                        type: 'IYZICO_PAYMENT_CALLBACK',
+                        token: token
+                    }, '*');
+                    
+                    // Close popup after a short delay
+                    setTimeout(() => {
+                        window.close();
+                    }, 2000);
+                }
+                // If we're in an iframe (İyzico opens callback in iframe)
+                else if (window.self !== window.top) {
+                    console.log('Running in iframe, posting message to parent');
+                    // Send message to parent window
+                    window.top.postMessage({
+                        type: 'IYZICO_PAYMENT_CALLBACK',
+                        token: token
+                    }, '*');
+                }
+                // Direct access (shouldn't happen normally)
+                else {
+                    console.log('Direct access, redirecting to main app...');
+                    setTimeout(() => {
+                        window.location.href = '/?payment_success=true';
+                    }, 2000);
+                }
+            } else {
+                console.error('No token found in URL or hash');
+                console.log('Full URL:', window.location.href);
+                console.log('Search params:', window.location.search);
+                console.log('Hash:', window.location.hash);
+                console.log('Referrer:', document.referrer);
+                
+                document.querySelector('h1').textContent = 'Hata';
+                document.querySelector('p').innerHTML = 'Ödeme token\'ı bulunamadı.<br>URL: ' + window.location.href + '<br><br>İyzico\'dan gelen callback doğru formatta değil. Lütfen IYZICO_CALLBACK_URL ayarını kontrol edin.';
+                document.querySelector('.spinner').style.display = 'none';
+            }
+        }
+        
+        // Run callback handler when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', handleCallback);
+        } else {
+            handleCallback();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Supabase Migration Handler",
+  "description": "Monitors migration-related files and services to ensure Supabase MCP is used for all database migrations",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "services/migrationService.ts",
+      "services/databaseService.ts",
+      "services/supabaseClient.ts",
+      "supabase/**/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A migration-related file has been modified. Review the changes and ensure that all database migration operations are using the Supabase MCP tool. Check that:\n1. Migration scripts use Supabase MCP commands\n2. Database schema changes go through proper Supabase migration workflow\n3. No direct SQL modifications bypass the MCP tool\n4. Migration service follows Supabase best practices\n\nIf any migrations are being done without Supabase MCP, refactor them to use the proper MCP tooling."
+  }
+}

@@ -50,3 +50,65 @@ export const applyWatermark = (baseImageBase64: string, watermarkImageBase64: st
     baseImage.onerror = (err) => reject(err);
   });
 };
+
+/**
+ * Generates a thumbnail from an image
+ * @param imageSource - Base64 string or URL of the image
+ * @param maxWidth - Maximum width of the thumbnail (default: 300px)
+ * @param maxHeight - Maximum height of the thumbnail (default: 300px)
+ * @returns Promise resolving to base64 encoded thumbnail
+ */
+export const generateThumbnail = (
+  imageSource: string,
+  maxWidth: number = 300,
+  maxHeight: number = 300
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    
+    // Handle base64 strings
+    if (!imageSource.startsWith('data:') && !imageSource.startsWith('http')) {
+      image.src = `data:image/png;base64,${imageSource}`;
+    } else {
+      image.src = imageSource;
+    }
+
+    image.onload = () => {
+      // Calculate thumbnail dimensions while maintaining aspect ratio
+      let width = image.width;
+      let height = image.height;
+
+      if (width > maxWidth) {
+        height = (maxWidth / width) * height;
+        width = maxWidth;
+      }
+
+      if (height > maxHeight) {
+        width = (maxHeight / height) * width;
+        height = maxHeight;
+      }
+
+      // Create canvas and draw resized image
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        return reject(new Error('Could not get canvas context'));
+      }
+
+      // Use better image smoothing for thumbnails
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      
+      ctx.drawImage(image, 0, 0, width, height);
+
+      // Convert to base64 (JPEG for smaller file size)
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      resolve(dataUrl.split(',')[1]);
+    };
+
+    image.onerror = (err) => reject(new Error('Failed to load image for thumbnail generation'));
+  });
+};

@@ -12,6 +12,10 @@ const ImageModal: React.FC<ImageModalProps> = ({ imageSrc, onClose }) => {
     return null;
   }
 
+  // Check if imageSrc is already a complete URL or data URI
+  const isCompleteUrl = imageSrc.startsWith('http') || imageSrc.startsWith('data:') || imageSrc.startsWith('blob:');
+  const imageUrl = isCompleteUrl ? imageSrc : `data:image/png;base64,${imageSrc}`;
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 transition-opacity duration-300 animate-[fade-in_0.2s_ease-in-out]"
@@ -32,7 +36,7 @@ const ImageModal: React.FC<ImageModalProps> = ({ imageSrc, onClose }) => {
       >
         <h2 id="image-modal-title" className="sr-only">{t('image_modal_title')}</h2>
         <img
-          src={`data:image/png;base64,${imageSrc}`}
+          src={imageUrl}
           alt="Generated Mockup"
           className="w-auto h-auto max-w-full max-h-full object-contain rounded-lg shadow-2xl"
         />
