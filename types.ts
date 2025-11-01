@@ -228,6 +228,26 @@ export enum QuotaErrorType {
   SUBSCRIPTION_EXPIRED = 'SUBSCRIPTION_EXPIRED',
 }
 
+// User Profile Types
+export interface UserProfile {
+  id: string;
+  userId: string;
+  firstName: string | null;
+  lastName: string | null;
+  avatarPath: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export enum ProfileErrorType {
+  PROFILE_NOT_FOUND = 'PROFILE_NOT_FOUND',
+  UPDATE_FAILED = 'UPDATE_FAILED',
+  AVATAR_UPLOAD_FAILED = 'AVATAR_UPLOAD_FAILED',
+  INVALID_FILE_TYPE = 'INVALID_FILE_TYPE',
+  FILE_TOO_LARGE = 'FILE_TOO_LARGE',
+  NETWORK_ERROR = 'NETWORK_ERROR',
+}
+
 // Subscription Plan Constants
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {

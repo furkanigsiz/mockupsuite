@@ -486,3 +486,124 @@ export async function requiresUpgrade(userId: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Check if a user can generate a video
+ * Video generation costs more credits than image generation (5 credits per video)
+ * Returns true if user has sufficient quota or credits available
+ */
+export async function canGenerateVideo(userId: string): Promise<boolean> {
+  try {
+    const subscription = await getCurrentPlan(userId);
+    if (!subscription) {
+      return false;
+    }
+
+    // Check if subscription is active
+    if (subscription.status !== 'active') {
+      return false;
+    }
+
+    // Check if subscription has expired
+    const now = new Date();
+    const periodEnd = new Date(subscription.currentPeriodEnd);
+    if (now > periodEnd) {
+      return false;
+    }
+
+    // Video generation costs 5 credits
+    const VIDEO_GENERATION_COST = 5;
+
+    // Check if user has remaining quota (5 credits needed)
+    if (subscription.remainingQuota >= VIDEO_GENERATION_COST) {
+      return true;
+    }
+
+    // If no quota, check if user has credits (will be implemented in creditService)
+    // For now, return false if insufficient quota
+    return false;
+  } catch (error) {
+    console.error('Error checking if user can generate video:', error);
+    return false;
+  }
+}
+
+/**
+ * Decrement the user's video quota by the appropriate amount
+ * Video generation costs 5 credits per video
+ */
+export async function decrementVideoQuota(userId: string, videoCount: number = 1): Promise<QuotaInfo> {
+  // Video generation costs 5 credits per video
+  const VIDEO_GENERATION_COST = 5;
+  const totalCost = VIDEO_GENERATION_COST * videoCount;
+
+  // Get current subscription
+  const subscription = await getCurrentPlan(userId);
+  if (!subscription) {
+    throw new Error('No subscription found');
+  }
+
+  // Check if user has enough quota
+  if (subscription.remainingQuota < totalCost) {
+    throw new Error('Insufficient quota for video generation');
+  }
+
+  // Decrement quota
+  const newQuota = subscription.remainingQuota - totalCost;
+  const { error } = await supabase
+    .from('subscriptions')
+    .update({
+      remaining_quota: newQuota,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+
+  if (error) {
+    throw new Error(`Failed to decrement video quota: ${error.message}`);
+  }
+
+  // Log the usage
+  await supabase.from('usage_logs').insert({
+    user_id: userId,
+    action: 'video_generated',
+    metadata: {
+      videoCount,
+      creditsUsed: totalCost,
+      remainingQuota: newQuota,
+    },
+  });
+
+  // Return updated quota info
+  return getRemainingQuota(userId);
+}
+
+/**
+ * Get video-specific quota information for a user
+ * Returns how many videos can be generated with remaining quota
+ */
+export async function getVideoQuotaInfo(userId: string): Promise<QuotaInfo> {
+  const subscription = await getCurrentPlan(userId);
+  if (!subscription) {
+    throw new Error('No subscription found');
+  }
+
+  const plan = SUBSCRIPTION_PLANS.find(p => p.id === subscription.planId);
+  if (!plan) {
+    throw new Error(`Plan not found: ${subscription.planId}`);
+  }
+
+  // Video generation costs 5 credits per video
+  const VIDEO_GENERATION_COST = 5;
+
+  // Calculate video-specific quota
+  const totalVideos = Math.floor(plan.monthlyQuota / VIDEO_GENERATION_COST);
+  const remainingVideos = Math.floor(subscription.remainingQuota / VIDEO_GENERATION_COST);
+  const usedVideos = totalVideos - remainingVideos;
+
+  return {
+    total: totalVideos,
+    used: usedVideos,
+    remaining: remainingVideos,
+    resetDate: subscription.currentPeriodEnd,
+  };
+}

@@ -14,6 +14,7 @@ export const en = {
     // Modes
     mode_scene: 'Scene Generation',
     mode_product: 'Product Mockups',
+    mode_video: 'Video',
 
     // Spinner
     spinner_title: 'Processing your request...',
@@ -33,6 +34,26 @@ export const en = {
     aspect_ratio_square: 'Square (1:1)',
     aspect_ratio_landscape: 'Landscape (16:9)',
     aspect_ratio_portrait: 'Portrait (9:16)',
+
+    // --- Video Mode ---
+    video_prompt_title: '2. Describe Your Video',
+    video_prompt_placeholder: 'Describe the video animation you want to create...',
+    video_duration_label: '3. Duration',
+    video_aspect_ratio_label: '4. Aspect Ratio',
+    generate_video_button: 'Generate Video',
+    generate_video_button_loading: 'Generating Video...',
+    download_video_button: 'Download Video',
+    remove_video_button: 'Remove',
+    video_saved_to_project: 'Saved to project',
+    video_saved_success: 'Video saved successfully!',
+    video_save_error: 'Failed to save video. Please try again.',
+    video_removed_success: 'Video removed successfully!',
+    video_remove_error: 'Failed to remove video. Please try again.',
+    video_download_error: 'Failed to download video. Please try again.',
+    grid_video_placeholder_title: 'Your video will appear here',
+    grid_video_placeholder_description: 'Upload an image and describe your video to get started',
+    video_prompt_suggestion_base: 'Suggest creative video animation ideas for this image',
+    progress_text_downloading_video: 'Downloading video...',
 
     // --- Product Mockup Mode ---
     step_1_title: '1. Upload Your Design',
@@ -98,12 +119,23 @@ export const en = {
     error_unknown: 'An unknown error occurred. Please check the console for more details.',
     error_loading_data: 'Failed to load your data. Please refresh the page.',
     error_not_authenticated: 'You must be signed in to generate mockups.',
+    error_video_generation_failed: 'Failed to generate video. Please try again.',
+    error_video_upload_failed: 'Failed to upload video. Please check your connection.',
+    error_invalid_video_source: 'Please upload a valid image for video generation.',
+    error_video_quota_exceeded: 'You have reached your video generation limit.',
+    error_video_timeout: 'Video generation timed out. Please try again.',
+    error_video_api_unavailable: 'Video generation is currently unavailable. This feature will be enabled once Google\'s Veo API becomes publicly accessible.',
 
     // Progress Text
     progress_text_generating: 'Generating for "{fileName}" ({current}/{total})...',
+    progress_text_generating_video: 'Generating video... This may take up to 60 seconds.',
+    progress_text_uploading_video: 'Uploading video...',
 
     // Prompt Suggestions
     prompt_suggestion_base: 'Based on the uploaded image, provide 4 diverse and creative mockup scene descriptions. The descriptions should be brief and inspiring. For example: "On a clean marble countertop next to a steaming cup of coffee." or "Held in a hand against a blurred city street background."',
+    suggest_prompts: 'Suggest Ideas',
+    suggesting_prompts: 'Suggesting...',
+    suggested_prompts_label: 'Suggested prompts:',
 
     // Project Manager
     project_manager_title: 'Projects',
@@ -301,7 +333,10 @@ export const en = {
     quota_widget_active_plan: 'Active Plan',
     quota_widget_plan_status: 'Plan Status',
     quota_widget_remaining_quota: 'Remaining Quota',
+    quota_widget_remaining_image_quota: 'Remaining Image Quota',
+    quota_widget_remaining_video_quota: 'Remaining Video Quota',
     quota_widget_used_mockups: '{used} mockups used',
+    quota_widget_used_videos: '{used} videos created',
     quota_widget_renewal_date: 'Renewal date',
     quota_widget_expired: 'Expired',
     quota_widget_today: 'Today',
@@ -334,6 +369,72 @@ export const en = {
     // Upgrade Success/Error Messages
     upgrade_success_message: 'Your plan has been upgraded successfully!',
     upgrade_error_message: 'Failed to upgrade your plan. Please try again.',
+    
+    // Profile Page
+    profile_page_title: 'Profile Details',
+    profile_first_name: 'First Name',
+    profile_last_name: 'Last Name',
+    profile_email: 'Email Address',
+    profile_upload_avatar: 'Upload new picture',
+    profile_uploading_avatar: 'Uploading...',
+    profile_save_changes: 'Save Changes',
+    profile_cancel: 'Cancel',
+    profile_subscription_title: 'Subscription Plan',
+    profile_current_plan: 'Current Plan',
+    profile_manage_subscription: 'Manage Subscription',
+    profile_sign_out: 'Sign Out',
+    profile_avatar_upload_success: 'Avatar updated successfully!',
+    profile_avatar_upload_error: 'Failed to upload avatar. Please try again.',
+    profile_invalid_file_type: 'Invalid file type. Please upload a JPEG, PNG, WebP, or GIF image.',
+    profile_file_too_large: 'File size exceeds 5MB limit.',
+    
+    // Profile Sidebar
+    profile_nav_profile: 'Profile Details',
+    profile_nav_settings: 'Account Settings',
+    profile_nav_security: 'Security',
+    profile_nav_subscription: 'Subscription',
+    profile_nav_generations: 'My Generations',
+    
+    // Profile Header
+    profile_user_avatar: 'User avatar',
+    
+    // Personal Info Form
+    profile_personal_info_title: 'Personal Information',
+    profile_first_name_placeholder: 'Enter your first name',
+    profile_last_name_placeholder: 'Enter your last name',
+    profile_email_readonly_note: 'Email cannot be changed',
+    profile_first_name_required: 'First name is required',
+    profile_last_name_required: 'Last name is required',
+    profile_first_name_too_long: 'First name must be 50 characters or less',
+    profile_last_name_too_long: 'Last name must be 50 characters or less',
+    profile_update_success: 'Profile updated successfully',
+    profile_update_failed: 'Failed to update profile. Please try again.',
+    profile_not_found: 'Profile not found. Please refresh the page.',
+    profile_saving: 'Saving...',
+    
+    // Subscription Section
+    subscription_section_title: 'Subscription Plan',
+    subscription_status_active: 'Active',
+    subscription_status_cancelled: 'Cancelled',
+    subscription_status_expired: 'Expired',
+    subscription_per_month: '/month',
+    subscription_renews_on: 'Renews on {date}',
+    subscription_access_until: 'Access until {date}',
+    subscription_monthly_generations: 'Monthly Generations',
+    subscription_resets_on: 'Resets on {date}',
+    subscription_plan_features: 'Plan Features',
+    subscription_generations_per_month: '{quota} generations per month',
+    subscription_max_resolution: 'Up to {resolution}px resolution',
+    subscription_no_watermark: 'No watermark',
+    subscription_high_resolution: 'High resolution downloads',
+    subscription_priority_queue: 'Priority queue processing',
+    subscription_priority_support: 'Priority support',
+    subscription_email_support: 'Email support',
+    subscription_no_subscription: 'No subscription found',
+    subscription_loading_error: 'Failed to load subscription data',
+    subscription_try_again: 'Try again',
+    subscription_low_quota_warning: 'You\'re running low on generations. Consider upgrading your plan to continue creating.',
+    subscription_no_quota_warning: 'You\'ve used all your generations for this month. Upgrade to continue or wait until {date}.',
 };
 
 export type Translations = typeof en;

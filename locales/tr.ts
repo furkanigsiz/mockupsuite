@@ -16,6 +16,7 @@ export const tr: Translations = {
     // Modes
     mode_scene: 'Sahne Oluşturma',
     mode_product: 'Ürün Mockup\'ları',
+    mode_video: 'Video',
 
     // Spinner
     spinner_title: 'İsteğiniz işleniyor...',
@@ -35,6 +36,25 @@ export const tr: Translations = {
     aspect_ratio_square: 'Kare (1:1)',
     aspect_ratio_landscape: 'Yatay (16:9)',
     aspect_ratio_portrait: 'Dikey (9:16)',
+
+    // --- Video Mode ---
+    video_prompt_title: '2. Videonuzu Tanımlayın',
+    video_prompt_placeholder: 'Oluşturmak istediğiniz video animasyonunu açıklayın...',
+    video_duration_label: '3. Süre',
+    video_aspect_ratio_label: '4. En-Boy Oranı',
+    generate_video_button: 'Video Oluştur',
+    generate_video_button_loading: 'Video Oluşturuluyor...',
+    download_video_button: 'Videoyu İndir',
+    remove_video_button: 'Kaldır',
+    video_saved_to_project: 'Projeye kaydedildi',
+    video_saved_success: 'Video başarıyla kaydedildi!',
+    video_save_error: 'Video kaydedilemedi. Lütfen tekrar deneyin.',
+    video_removed_success: 'Video başarıyla kaldırıldı!',
+    video_remove_error: 'Video kaldırılamadı. Lütfen tekrar deneyin.',
+    video_download_error: 'Video indirilemedi. Lütfen tekrar deneyin.',
+    grid_video_placeholder_title: 'Videonuz burada görünecek',
+    grid_video_placeholder_description: 'Başlamak için bir resim yükleyin ve videonuzu tanımlayın',
+    video_prompt_suggestion_base: 'Bu görsel için yaratıcı video animasyon fikirleri önerin',
 
     // --- Product Mockup Mode ---
     step_1_title: '1. Tasarımınızı Yükleyin',
@@ -100,12 +120,24 @@ export const tr: Translations = {
     error_unknown: 'Bilinmeyen bir hata oluştu. Lütfen daha fazla ayrıntı için konsolu kontrol edin.',
     error_loading_data: 'Verileriniz yüklenemedi. Lütfen sayfayı yenileyin.',
     error_not_authenticated: 'Mockup oluşturmak için giriş yapmalısınız.',
+    error_video_generation_failed: 'Video oluşturulamadı. Lütfen tekrar deneyin.',
+    error_video_upload_failed: 'Video yüklenemedi. Lütfen bağlantınızı kontrol edin.',
+    error_invalid_video_source: 'Lütfen video oluşturma için geçerli bir resim yükleyin.',
+    error_video_quota_exceeded: 'Video oluşturma limitinize ulaştınız.',
+    error_video_timeout: 'Video oluşturma zaman aşımına uğradı. Lütfen tekrar deneyin.',
+    error_video_api_unavailable: 'Video oluşturma şu anda kullanılamıyor. Bu özellik Google\'ın Veo API\'si genel kullanıma açıldığında etkinleştirilecektir.',
 
     // Progress Text
     progress_text_generating: '"{fileName}" için oluşturuluyor ({current}/{total})...',
+    progress_text_generating_video: 'Video oluşturuluyor... Bu 60 saniyeye kadar sürebilir.',
+    progress_text_uploading_video: 'Video yükleniyor...',
+    progress_text_downloading_video: 'Video indirmeye hazırlanıyor...',
 
     // Prompt Suggestions
     prompt_suggestion_base: 'Yüklenen resme dayanarak 4 farklı ve yaratıcı mockup sahnesi açıklaması sağlayın. Açıklamalar kısa ve ilham verici olmalıdır. Örneğin: "Buharı tüten bir fincan kahvenin yanında temiz bir mermer tezgah üzerinde." veya "Bulanık bir şehir sokağı arka planına karşı bir elde tutuluyor."',
+    suggest_prompts: 'Fikir Öner',
+    suggesting_prompts: 'Öneriliyor...',
+    suggested_prompts_label: 'Önerilen promptlar:',
     
     // Project Manager
     project_manager_title: 'Projeler',
@@ -228,7 +260,6 @@ export const tr: Translations = {
     error_validation_invalid_input: 'Geçersiz veri sağlandı. Lütfen girişinizi kontrol edin ve tekrar deneyin.',
     error_validation_file_too_large: 'Dosya çok büyük. Maksimum boyut {maxSize}MB.',
     error_validation_invalid_file_type: 'Geçersiz dosya türü. İzin verilen türler: {allowedTypes}.',
-    error_unknown: 'Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.',
     error_retry_failed: 'İşlem birden fazla denemeden sonra başarısız oldu. Lütfen daha sonra tekrar deneyin.',
     
     // Payment Error Messages
@@ -304,7 +335,10 @@ export const tr: Translations = {
     quota_widget_active_plan: 'Aktif Plan',
     quota_widget_plan_status: 'Plan Durumu',
     quota_widget_remaining_quota: 'Kalan Kota',
+    quota_widget_remaining_image_quota: 'Kalan Görsel Kotası',
+    quota_widget_remaining_video_quota: 'Kalan Video Kotası',
     quota_widget_used_mockups: '{used} mockup kullanıldı',
+    quota_widget_used_videos: '{used} video oluşturuldu',
     quota_widget_renewal_date: 'Yenileme tarihi',
     quota_widget_expired: 'Süresi doldu',
     quota_widget_today: 'Bugün',
@@ -337,4 +371,70 @@ export const tr: Translations = {
     // Upgrade Success/Error Messages
     upgrade_success_message: 'Planınız başarıyla yükseltildi!',
     upgrade_error_message: 'Planınız yükseltilemedi. Lütfen tekrar deneyin.',
+    
+    // Profile Page
+    profile_page_title: 'Profil Detayları',
+    profile_first_name: 'Ad',
+    profile_last_name: 'Soyad',
+    profile_email: 'E-posta Adresi',
+    profile_upload_avatar: 'Yeni resim yükle',
+    profile_uploading_avatar: 'Yükleniyor...',
+    profile_save_changes: 'Değişiklikleri Kaydet',
+    profile_cancel: 'İptal',
+    profile_subscription_title: 'Abonelik Planı',
+    profile_current_plan: 'Mevcut Plan',
+    profile_manage_subscription: 'Aboneliği Yönet',
+    profile_sign_out: 'Çıkış Yap',
+    profile_avatar_upload_success: 'Avatar başarıyla güncellendi!',
+    profile_avatar_upload_error: 'Avatar yüklenemedi. Lütfen tekrar deneyin.',
+    profile_invalid_file_type: 'Geçersiz dosya türü. Lütfen JPEG, PNG, WebP veya GIF resmi yükleyin.',
+    profile_file_too_large: 'Dosya boyutu 5MB sınırını aşıyor.',
+    
+    // Profile Sidebar
+    profile_nav_profile: 'Profil Detayları',
+    profile_nav_settings: 'Hesap Ayarları',
+    profile_nav_security: 'Güvenlik',
+    profile_nav_subscription: 'Abonelik',
+    profile_nav_generations: 'Oluşturduklarım',
+    
+    // Profile Header
+    profile_user_avatar: 'Kullanıcı avatarı',
+    
+    // Personal Info Form
+    profile_personal_info_title: 'Kişisel Bilgiler',
+    profile_first_name_placeholder: 'Adınızı girin',
+    profile_last_name_placeholder: 'Soyadınızı girin',
+    profile_email_readonly_note: 'E-posta değiştirilemez',
+    profile_first_name_required: 'Ad gereklidir',
+    profile_last_name_required: 'Soyad gereklidir',
+    profile_first_name_too_long: 'Ad 50 karakter veya daha az olmalıdır',
+    profile_last_name_too_long: 'Soyad 50 karakter veya daha az olmalıdır',
+    profile_update_success: 'Profil başarıyla güncellendi',
+    profile_update_failed: 'Profil güncellenemedi. Lütfen tekrar deneyin.',
+    profile_not_found: 'Profil bulunamadı. Lütfen sayfayı yenileyin.',
+    profile_saving: 'Kaydediliyor...',
+    
+    // Subscription Section
+    subscription_section_title: 'Abonelik Planı',
+    subscription_status_active: 'Aktif',
+    subscription_status_cancelled: 'İptal Edildi',
+    subscription_status_expired: 'Süresi Doldu',
+    subscription_per_month: '/ay',
+    subscription_renews_on: '{date} tarihinde yenilenir',
+    subscription_access_until: '{date} tarihine kadar erişim',
+    subscription_monthly_generations: 'Aylık Oluşturmalar',
+    subscription_resets_on: '{date} tarihinde sıfırlanır',
+    subscription_plan_features: 'Plan Özellikleri',
+    subscription_generations_per_month: 'Ayda {quota} oluşturma',
+    subscription_max_resolution: '{resolution}px çözünürlüğe kadar',
+    subscription_no_watermark: 'Filigransız',
+    subscription_high_resolution: 'Yüksek çözünürlüklü indirmeler',
+    subscription_priority_queue: 'Öncelikli kuyruk işleme',
+    subscription_priority_support: 'Öncelikli destek',
+    subscription_email_support: 'E-posta desteği',
+    subscription_no_subscription: 'Abonelik bulunamadı',
+    subscription_loading_error: 'Abonelik verileri yüklenemedi',
+    subscription_try_again: 'Tekrar dene',
+    subscription_low_quota_warning: 'Oluşturma kotanız azalıyor. Oluşturmaya devam etmek için planınızı yükseltmeyi düşünün.',
+    subscription_no_quota_warning: 'Bu ay için tüm oluşturmalarınızı kullandınız. Devam etmek için yükseltin veya {date} tarihine kadar bekleyin.',
 };

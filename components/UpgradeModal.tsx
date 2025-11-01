@@ -21,7 +21,14 @@ export function UpgradeModal({ isOpen, onClose, onUpgrade, trigger = 'manual' }:
 
   useEffect(() => {
     if (isOpen && user) {
+      // Reset state when modal opens
+      setSelectedPlan(null);
+      setIsProcessing(false);
       loadCurrentSubscription();
+    } else if (!isOpen) {
+      // Reset state when modal closes
+      setSelectedPlan(null);
+      setIsProcessing(false);
     }
   }, [isOpen, user]);
 
@@ -125,8 +132,8 @@ export function UpgradeModal({ isOpen, onClose, onUpgrade, trigger = 'manual' }:
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-6xl mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+      <div className="relative w-full max-w-6xl my-8">
         <div className="bg-white dark:bg-background-dark rounded-xl shadow-2xl p-8 md:p-12">
           {/* Close Button */}
           <button

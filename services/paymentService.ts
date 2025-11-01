@@ -370,7 +370,8 @@ export async function refundPayment(
  */
 export async function createSubscriptionPayment(
   userId: string,
-  plan: any
+  plan: any,
+  proratedPrice?: number
 ): Promise<{
   success: boolean;
   token?: string;
@@ -378,10 +379,13 @@ export async function createSubscriptionPayment(
   errorMessage?: string;
 }> {
   try {
+    // Use prorated price if provided, otherwise use plan price
+    const finalPrice = proratedPrice !== undefined && proratedPrice > 0 ? proratedPrice : plan.price;
+    
     const result = await initializePayment(
       userId,
       'subscription',
-      plan.price,
+      finalPrice,
       plan.id
     );
     

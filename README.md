@@ -14,11 +14,37 @@ MockupSuite is an AI-powered mockup generator that creates professional product 
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+**Prerequisites:** Node.js and Docker Desktop
 
+### Option 1: Using Docker (Recommended)
+
+1. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` and add your actual API keys and Supabase credentials.
+
+2. **Start the development server:**
+   ```bash
+   docker-compose up mockupsuite
+   ```
+   
+   Your app will be available at http://localhost:3000
+
+3. **For production build:**
+   ```bash
+   docker-compose --profile production up mockupsuite-prod
+   ```
+   
+   Your app will be available at http://localhost:80
+
+### Option 2: Manual Setup
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+2. Set the environment variables:
+   - Copy `.env.example` to `.env` and fill in your values
+   - Set the `GEMINI_API_KEY` to your Gemini API key
+   - Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` to your Supabase credentials
 3. Run the app:
    `npm run dev`

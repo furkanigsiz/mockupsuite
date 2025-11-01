@@ -165,8 +165,24 @@ class RegistrationService {
         throw new Error('User not found or not authenticated');
       }
 
-      const selectedPlan = user.user_metadata?.selected_plan as PlanId;
+      // Try to get selected plan from user metadata first
+      let selectedPlan = user.user_metadata?.selected_plan as PlanId;
+      console.log('Plan from user_metadata:', selectedPlan);
+      
+      // If not in metadata, try localStorage (for payment callback scenarios)
       if (!selectedPlan || selectedPlan === 'free') {
+        const pendingPlan = localStorage.getItem('pending_payment_plan');
+        console.log('Plan from localStorage:', pendingPlan);
+        console.log('All localStorage keys:', Object.keys(localStorage));
+        
+        if (pendingPlan && pendingPlan !== 'free') {
+          selectedPlan = pendingPlan as PlanId;
+          console.log('Using plan from localStorage:', selectedPlan);
+        }
+      }
+      
+      if (!selectedPlan || selectedPlan === 'free') {
+        console.error('No paid plan found! user_metadata:', user.user_metadata, 'localStorage:', localStorage.getItem('pending_payment_plan'));
         throw new Error('No paid plan selected');
       }
 
@@ -180,6 +196,10 @@ class RegistrationService {
           activation_date: new Date().toISOString(),
         },
       });
+      
+      // Clean up localStorage after successful activation
+      localStorage.removeItem('pending_payment_plan');
+      localStorage.removeItem('pending_payment_credit_package');
     } catch (error) {
       throw new Error(`Paid registration completion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

@@ -18,6 +18,11 @@ export enum SupabaseErrorType {
   QUOTA_ERROR = 'QUOTA_ERROR',
   NO_CREDITS = 'NO_CREDITS',
   SUBSCRIPTION_EXPIRED = 'SUBSCRIPTION_EXPIRED',
+  VIDEO_GENERATION_FAILED = 'VIDEO_GENERATION_FAILED',
+  VIDEO_UPLOAD_FAILED = 'VIDEO_UPLOAD_FAILED',
+  INVALID_SOURCE_IMAGE = 'INVALID_SOURCE_IMAGE',
+  GENERATION_TIMEOUT = 'GENERATION_TIMEOUT',
+  UNSUPPORTED_FORMAT = 'UNSUPPORTED_FORMAT',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
@@ -48,6 +53,27 @@ export function categorizeError(error: any): SupabaseErrorType {
   const errorMessage = error?.message?.toLowerCase() || '';
   const errorCode = error?.code || error?.status;
   const errorType = error?.type;
+
+  // Video-specific errors
+  if (errorType === 'VIDEO_GENERATION_FAILED' || errorMessage.includes('video generation failed') || errorMessage.includes('failed to generate video')) {
+    return SupabaseErrorType.VIDEO_GENERATION_FAILED;
+  }
+
+  if (errorType === 'VIDEO_UPLOAD_FAILED' || errorMessage.includes('video upload failed') || errorMessage.includes('failed to upload video')) {
+    return SupabaseErrorType.VIDEO_UPLOAD_FAILED;
+  }
+
+  if (errorType === 'INVALID_SOURCE_IMAGE' || errorMessage.includes('invalid source image') || errorMessage.includes('invalid image for video')) {
+    return SupabaseErrorType.INVALID_SOURCE_IMAGE;
+  }
+
+  if (errorType === 'GENERATION_TIMEOUT' || errorMessage.includes('video generation timed out') || errorMessage.includes('generation timeout')) {
+    return SupabaseErrorType.GENERATION_TIMEOUT;
+  }
+
+  if (errorType === 'UNSUPPORTED_FORMAT' || errorMessage.includes('unsupported format') || errorMessage.includes('unsupported video format')) {
+    return SupabaseErrorType.UNSUPPORTED_FORMAT;
+  }
 
   // Payment-specific errors
   if (errorType === 'PAYMENT_FAILED' || errorMessage.includes('payment failed')) {
@@ -158,7 +184,10 @@ export function isRetryable(errorType: SupabaseErrorType): boolean {
   return (
     errorType === SupabaseErrorType.NETWORK_ERROR ||
     errorType === SupabaseErrorType.DATABASE_ERROR ||
-    errorType === SupabaseErrorType.PAYMENT_ERROR
+    errorType === SupabaseErrorType.PAYMENT_ERROR ||
+    errorType === SupabaseErrorType.VIDEO_GENERATION_FAILED ||
+    errorType === SupabaseErrorType.VIDEO_UPLOAD_FAILED ||
+    errorType === SupabaseErrorType.GENERATION_TIMEOUT
   );
 }
 
@@ -281,7 +310,7 @@ export async function withErrorHandling<T>(
 /**
  * Gets a user-friendly error message based on error type
  */
-export function getUserFriendlyMessage(error: SupabaseError, language: 'en' | 'tr' = 'en'): string {
+export function getUserFriendlyMessage(error: SupabaseError, language: 'en' | 'tr' | 'es' = 'en'): string {
   const messages = {
     en: {
       [SupabaseErrorType.AUTH_ERROR]: 'Authentication failed. Please check your credentials and try again.',
@@ -298,6 +327,11 @@ export function getUserFriendlyMessage(error: SupabaseError, language: 'en' | 't
       [SupabaseErrorType.QUOTA_ERROR]: 'Your monthly quota is exhausted. Please upgrade your plan to continue.',
       [SupabaseErrorType.NO_CREDITS]: 'You have no credits remaining. Please purchase credits to continue.',
       [SupabaseErrorType.SUBSCRIPTION_EXPIRED]: 'Your subscription has expired. Please renew to continue.',
+      [SupabaseErrorType.VIDEO_GENERATION_FAILED]: 'Failed to generate video. Please try again.',
+      [SupabaseErrorType.VIDEO_UPLOAD_FAILED]: 'Failed to upload video. Please check your connection.',
+      [SupabaseErrorType.INVALID_SOURCE_IMAGE]: 'Please upload a valid image for video generation.',
+      [SupabaseErrorType.GENERATION_TIMEOUT]: 'Video generation timed out. Please try again.',
+      [SupabaseErrorType.UNSUPPORTED_FORMAT]: 'Unsupported video format. Please try a different format.',
       [SupabaseErrorType.UNKNOWN_ERROR]: error.message || 'An unexpected error occurred. Please try again.',
     },
     tr: {
@@ -315,7 +349,34 @@ export function getUserFriendlyMessage(error: SupabaseError, language: 'en' | 't
       [SupabaseErrorType.QUOTA_ERROR]: 'Aylık kotanız tükendi. Devam etmek için lütfen planınızı yükseltin.',
       [SupabaseErrorType.NO_CREDITS]: 'Krediniz kalmadı. Devam etmek için lütfen kredi satın alın.',
       [SupabaseErrorType.SUBSCRIPTION_EXPIRED]: 'Aboneliğinizin süresi doldu. Devam etmek için lütfen yenileyin.',
+      [SupabaseErrorType.VIDEO_GENERATION_FAILED]: 'Video oluşturulamadı. Lütfen tekrar deneyin.',
+      [SupabaseErrorType.VIDEO_UPLOAD_FAILED]: 'Video yüklenemedi. Lütfen bağlantınızı kontrol edin.',
+      [SupabaseErrorType.INVALID_SOURCE_IMAGE]: 'Lütfen video oluşturma için geçerli bir resim yükleyin.',
+      [SupabaseErrorType.GENERATION_TIMEOUT]: 'Video oluşturma zaman aşımına uğradı. Lütfen tekrar deneyin.',
+      [SupabaseErrorType.UNSUPPORTED_FORMAT]: 'Desteklenmeyen video formatı. Lütfen farklı bir format deneyin.',
       [SupabaseErrorType.UNKNOWN_ERROR]: error.message || 'Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.',
+    },
+    es: {
+      [SupabaseErrorType.AUTH_ERROR]: 'Autenticación fallida. Por favor, verifica tus credenciales e inténtalo de nuevo.',
+      [SupabaseErrorType.DATABASE_ERROR]: 'No se pudieron guardar tus datos. Por favor, inténtalo de nuevo.',
+      [SupabaseErrorType.STORAGE_ERROR]: 'No se pudo subir el archivo. Por favor, verifica el archivo e inténtalo de nuevo.',
+      [SupabaseErrorType.NETWORK_ERROR]: 'Conexión de red perdida. Por favor, verifica tu conexión a internet.',
+      [SupabaseErrorType.QUOTA_EXCEEDED]: 'Cuota de almacenamiento excedida. Por favor, elimina algunos archivos o actualiza tu plan.',
+      [SupabaseErrorType.VALIDATION_ERROR]: 'Datos inválidos proporcionados. Por favor, verifica tu entrada e inténtalo de nuevo.',
+      [SupabaseErrorType.PAYMENT_ERROR]: 'El procesamiento del pago falló. Por favor, inténtalo de nuevo.',
+      [SupabaseErrorType.PAYMENT_FAILED]: 'Pago fallido. Por favor, verifica tus detalles de pago e inténtalo de nuevo.',
+      [SupabaseErrorType.PAYMENT_CANCELLED]: 'El pago fue cancelado. Por favor, inténtalo de nuevo si deseas continuar.',
+      [SupabaseErrorType.INVALID_CARD]: 'Información de tarjeta inválida. Por favor, verifica los detalles de tu tarjeta.',
+      [SupabaseErrorType.INSUFFICIENT_FUNDS]: 'Fondos insuficientes. Por favor, verifica el saldo de tu cuenta.',
+      [SupabaseErrorType.QUOTA_ERROR]: 'Tu cuota mensual se ha agotado. Por favor, actualiza tu plan para continuar.',
+      [SupabaseErrorType.NO_CREDITS]: 'No te quedan créditos. Por favor, compra créditos para continuar.',
+      [SupabaseErrorType.SUBSCRIPTION_EXPIRED]: 'Tu suscripción ha expirado. Por favor, renueva para continuar.',
+      [SupabaseErrorType.VIDEO_GENERATION_FAILED]: 'No se pudo generar el video. Por favor, inténtalo de nuevo.',
+      [SupabaseErrorType.VIDEO_UPLOAD_FAILED]: 'No se pudo subir el video. Por favor, verifica tu conexión.',
+      [SupabaseErrorType.INVALID_SOURCE_IMAGE]: 'Por favor, sube una imagen válida para la generación de video.',
+      [SupabaseErrorType.GENERATION_TIMEOUT]: 'La generación de video agotó el tiempo de espera. Por favor, inténtalo de nuevo.',
+      [SupabaseErrorType.UNSUPPORTED_FORMAT]: 'Formato de video no soportado. Por favor, intenta con un formato diferente.',
+      [SupabaseErrorType.UNKNOWN_ERROR]: error.message || 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.',
     },
   };
 

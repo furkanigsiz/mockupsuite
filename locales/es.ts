@@ -16,6 +16,7 @@ export const es: Translations = {
     // Modes
     mode_scene: 'Generación de Escenas',
     mode_product: 'Maquetas de Productos',
+    mode_video: 'Video',
 
     // Spinner
     spinner_title: 'Procesando tu solicitud...',
@@ -35,6 +36,25 @@ export const es: Translations = {
     aspect_ratio_square: 'Cuadrado (1:1)',
     aspect_ratio_landscape: 'Horizontal (16:9)',
     aspect_ratio_portrait: 'Vertical (9:16)',
+
+    // --- Video Mode ---
+    video_prompt_title: '2. Describe Tu Video',
+    video_prompt_placeholder: 'Describe la animación de video que quieres crear...',
+    video_duration_label: '3. Duración',
+    video_aspect_ratio_label: '4. Relación de Aspecto',
+    generate_video_button: 'Generar Video',
+    generate_video_button_loading: 'Generando Video...',
+    download_video_button: 'Descargar Video',
+    remove_video_button: 'Eliminar',
+    video_saved_to_project: 'Guardado en el proyecto',
+    video_saved_success: '¡Video guardado exitosamente!',
+    video_save_error: 'Error al guardar el video. Por favor, inténtalo de nuevo.',
+    video_removed_success: '¡Video eliminado exitosamente!',
+    video_remove_error: 'Error al eliminar el video. Por favor, inténtalo de nuevo.',
+    video_download_error: 'Error al descargar el video. Por favor, inténtalo de nuevo.',
+    grid_video_placeholder_title: 'Tu video aparecerá aquí',
+    grid_video_placeholder_description: 'Sube una imagen y describe tu video para comenzar',
+    video_prompt_suggestion_base: 'Sugiere ideas creativas de animación de video para esta imagen',
 
     // --- Product Mockup Mode ---
     step_1_title: '1. Sube tu Diseño',
@@ -100,12 +120,24 @@ export const es: Translations = {
     error_unknown: 'Ocurrió un error desconocido. Por favor, revisa la consola para más detalles.',
     error_loading_data: 'No se pudieron cargar tus datos. Por favor, actualiza la página.',
     error_not_authenticated: 'Debes iniciar sesión para generar mockups.',
+    error_video_generation_failed: 'No se pudo generar el video. Por favor, inténtalo de nuevo.',
+    error_video_upload_failed: 'No se pudo subir el video. Por favor, verifica tu conexión.',
+    error_invalid_video_source: 'Por favor, sube una imagen válida para la generación de video.',
+    error_video_quota_exceeded: 'Has alcanzado tu límite de generación de videos.',
+    error_video_timeout: 'La generación de video agotó el tiempo de espera. Por favor, inténtalo de nuevo.',
+    error_video_api_unavailable: 'La generación de video no está disponible actualmente. Esta función se habilitará una vez que la API Veo de Google esté disponible públicamente.',
 
     // Progress Text
     progress_text_generating: 'Generando para "{fileName}" ({current}/{total})...',
+    progress_text_generating_video: 'Generando video... Esto puede tardar hasta 60 segundos.',
+    progress_text_uploading_video: 'Subiendo video...',
+    progress_text_downloading_video: 'Preparando video para descarga...',
 
     // Prompt Suggestions
     prompt_suggestion_base: 'Basado en la imagen subida, proporciona 4 descripciones de escenas de maqueta diversas y creativas. Las descripciones deben ser breves e inspiradoras. Por ejemplo: "Sobre una encimera de mármol limpia junto a una taza de café humeante." o "Sostenido en una mano con un fondo de calle de ciudad borroso."',
+    suggest_prompts: 'Sugerir Ideas',
+    suggesting_prompts: 'Sugiriendo...',
+    suggested_prompts_label: 'Sugerencias de prompts:',
     
     // Project Manager
     project_manager_title: 'Proyectos',
@@ -303,7 +335,10 @@ export const es: Translations = {
     quota_widget_active_plan: 'Plan Activo',
     quota_widget_plan_status: 'Estado del Plan',
     quota_widget_remaining_quota: 'Cuota Restante',
+    quota_widget_remaining_image_quota: 'Cuota de Imagen Restante',
+    quota_widget_remaining_video_quota: 'Cuota de Video Restante',
     quota_widget_used_mockups: '{used} maquetas usadas',
+    quota_widget_used_videos: '{used} videos creados',
     quota_widget_renewal_date: 'Fecha de renovación',
     quota_widget_expired: 'Expirado',
     quota_widget_today: 'Hoy',
@@ -336,4 +371,70 @@ export const es: Translations = {
     // Upgrade Success/Error Messages
     upgrade_success_message: '¡Tu plan ha sido actualizado exitosamente!',
     upgrade_error_message: 'No se pudo actualizar tu plan. Por favor, inténtalo de nuevo.',
+    
+    // Profile Page
+    profile_page_title: 'Detalles del Perfil',
+    profile_first_name: 'Nombre',
+    profile_last_name: 'Apellido',
+    profile_email: 'Correo Electrónico',
+    profile_upload_avatar: 'Subir nueva imagen',
+    profile_uploading_avatar: 'Subiendo...',
+    profile_save_changes: 'Guardar Cambios',
+    profile_cancel: 'Cancelar',
+    profile_subscription_title: 'Plan de Suscripción',
+    profile_current_plan: 'Plan Actual',
+    profile_manage_subscription: 'Gestionar Suscripción',
+    profile_sign_out: 'Cerrar Sesión',
+    profile_avatar_upload_success: '¡Avatar actualizado exitosamente!',
+    profile_avatar_upload_error: 'No se pudo subir el avatar. Por favor, inténtalo de nuevo.',
+    profile_invalid_file_type: 'Tipo de archivo inválido. Por favor, sube una imagen JPEG, PNG, WebP o GIF.',
+    profile_file_too_large: 'El tamaño del archivo excede el límite de 5MB.',
+    
+    // Profile Sidebar
+    profile_nav_profile: 'Detalles del Perfil',
+    profile_nav_settings: 'Configuración de Cuenta',
+    profile_nav_security: 'Seguridad',
+    profile_nav_subscription: 'Suscripción',
+    profile_nav_generations: 'Mis Generaciones',
+    
+    // Profile Header
+    profile_user_avatar: 'Avatar de usuario',
+    
+    // Personal Info Form
+    profile_personal_info_title: 'Información Personal',
+    profile_first_name_placeholder: 'Ingresa tu nombre',
+    profile_last_name_placeholder: 'Ingresa tu apellido',
+    profile_email_readonly_note: 'El correo electrónico no se puede cambiar',
+    profile_first_name_required: 'El nombre es obligatorio',
+    profile_last_name_required: 'El apellido es obligatorio',
+    profile_first_name_too_long: 'El nombre debe tener 50 caracteres o menos',
+    profile_last_name_too_long: 'El apellido debe tener 50 caracteres o menos',
+    profile_update_success: 'Perfil actualizado exitosamente',
+    profile_update_failed: 'No se pudo actualizar el perfil. Por favor, inténtalo de nuevo.',
+    profile_not_found: 'Perfil no encontrado. Por favor, actualiza la página.',
+    profile_saving: 'Guardando...',
+    
+    // Subscription Section
+    subscription_section_title: 'Plan de Suscripción',
+    subscription_status_active: 'Activo',
+    subscription_status_cancelled: 'Cancelado',
+    subscription_status_expired: 'Expirado',
+    subscription_per_month: '/mes',
+    subscription_renews_on: 'Se renueva el {date}',
+    subscription_access_until: 'Acceso hasta el {date}',
+    subscription_monthly_generations: 'Generaciones Mensuales',
+    subscription_resets_on: 'Se reinicia el {date}',
+    subscription_plan_features: 'Características del Plan',
+    subscription_generations_per_month: '{quota} generaciones por mes',
+    subscription_max_resolution: 'Hasta {resolution}px de resolución',
+    subscription_no_watermark: 'Sin marca de agua',
+    subscription_high_resolution: 'Descargas de alta resolución',
+    subscription_priority_queue: 'Procesamiento de cola prioritaria',
+    subscription_priority_support: 'Soporte prioritario',
+    subscription_email_support: 'Soporte por correo',
+    subscription_no_subscription: 'No se encontró suscripción',
+    subscription_loading_error: 'Error al cargar datos de suscripción',
+    subscription_try_again: 'Intentar de nuevo',
+    subscription_low_quota_warning: 'Te estás quedando sin generaciones. Considera actualizar tu plan para continuar creando.',
+    subscription_no_quota_warning: 'Has usado todas tus generaciones de este mes. Actualiza para continuar o espera hasta el {date}.',
 };

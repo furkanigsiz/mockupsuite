@@ -10,6 +10,7 @@ interface PaymentCheckoutProps {
   userId: string;
   plan?: SubscriptionPlan;
   creditPackage?: CreditPackage;
+  proratedPrice?: number; // Optional prorated price for upgrades
   onSuccess: (transactionId: string) => void;
   onCancel: () => void;
   onError: (error: string) => void;
@@ -19,10 +20,12 @@ export const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   userId,
   plan,
   creditPackage,
+  proratedPrice,
   onSuccess,
   onCancel,
   onError,
 }) => {
+  
   const [loading, setLoading] = useState(true);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +47,7 @@ export const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
       const response = await retryPaymentOperation(
         async () => {
           if (plan) {
-            return await paymentService.createSubscriptionPayment(userId, plan);
+            return await paymentService.createSubscriptionPayment(userId, plan, proratedPrice);
           } else if (creditPackage) {
             return await paymentService.createCreditPayment(userId, creditPackage);
           } else {
@@ -105,10 +108,11 @@ export const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
           console.log('Payment verification result:', verification);
           
           if (verification.success) {
-            // Clean up localStorage
+            // Clean up localStorage (but keep plan info for completePaidRegistration)
             localStorage.removeItem('completed_payment_token');
             localStorage.removeItem('pending_payment_token');
             localStorage.removeItem('pending_payment_time');
+            // DON'T remove pending_payment_plan here - it will be removed in completePaidRegistration
             
             onSuccess(verification.paymentId || callbackToken);
           } else {
@@ -261,9 +265,19 @@ export const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   // Open payment in new window and listen for completion
   const handleOpenPayment = () => {
     if (checkoutUrl && token) {
-      // Store payment token in localStorage for callback handling
+      // Store payment token and plan info in localStorage for callback handling
       localStorage.setItem('pending_payment_token', token);
       localStorage.setItem('pending_payment_time', Date.now().toString());
+      
+      // Store plan info for callback
+      if (plan) {
+        console.log('Storing plan in localStorage:', plan.id);
+        localStorage.setItem('pending_payment_plan', plan.id);
+        console.log('Verified localStorage:', localStorage.getItem('pending_payment_plan'));
+      } else if (creditPackage) {
+        console.log('Storing credit package in localStorage:', creditPackage.id);
+        localStorage.setItem('pending_payment_credit_package', creditPackage.id);
+      }
       
       // Open in new window
       const width = 900;
@@ -296,11 +310,14 @@ export const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
               localStorage.removeItem('completed_payment_token');
               localStorage.removeItem('pending_payment_token');
               localStorage.removeItem('pending_payment_time');
+              // DON'T remove pending_payment_plan here - it will be removed in completePaidRegistration
               onSuccess(completedToken);
             } else {
               // Window closed without completion
               localStorage.removeItem('pending_payment_token');
               localStorage.removeItem('pending_payment_time');
+              localStorage.removeItem('pending_payment_plan');
+              localStorage.removeItem('pending_payment_credit_package');
               onCancel();
             }
           }, 500);
@@ -320,8 +337,13 @@ export const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             {plan ? `${plan.displayName} ${t('payment_checkout_plan_label')}` : `${creditPackage?.name} ${t('payment_checkout_package_label')}`} - ₺
-            {plan?.price || creditPackage?.price}
+            {proratedPrice !== undefined && proratedPrice > 0 ? proratedPrice.toFixed(2) : (plan?.price || creditPackage?.price)}
           </p>
+          {proratedPrice !== undefined && proratedPrice > 0 && (
+            <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+              Kalan dönem için orantılı ücret (Normal fiyat: ₺{plan?.price})
+            </p>
+          )}
         </div>
 
         {/* Info */}

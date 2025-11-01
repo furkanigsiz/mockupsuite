@@ -6,7 +6,7 @@
 import * as databaseService from './databaseService';
 import * as storageService from './storageService';
 import * as syncService from './syncService';
-import { Project, BrandKit, PromptTemplate } from '../types';
+import { Project, BrandKit, PromptTemplate, VideoGenerationRequest } from '../types';
 
 /**
  * Create a new project with offline support
@@ -207,9 +207,164 @@ export async function deleteMockup(
   await storageService.deleteImage(imagePath);
 }
 
+/**
+ * Queue video generation request with offline support
+ */
+export async function queueVideoGeneration(
+  request: VideoGenerationRequest,
+  videoFile: File,
+  sourceImagePath?: string
+): Promise<string> {
+  if (!syncService.isOnline()) {
+    // Queue for later sync
+    await syncService.queueChange({
+      type: 'create',
+      entity: 'video',
+      data: {
+        projectId: request.projectId,
+        videoFile,
+        sourceImagePath,
+        prompt: request.prompt,
+        duration: request.duration,
+        aspectRatio: request.aspectRatio,
+        base64Video: true, // Flag to indicate video needs upload
+      },
+      userId: request.userId,
+    });
+    
+    // Return temporary path
+    return `temp/${request.userId}/videos/${Date.now()}_video.mp4`;
+  }
+
+  // Upload video and save to database
+  const videoPath = await storageService.uploadVideo(
+    request.userId,
+    videoFile,
+    'videos'
+  );
+  
+  await databaseService.saveVideo(request.userId, {
+    projectId: request.projectId,
+    storagePath: videoPath,
+    sourceImagePath: sourceImagePath,
+    prompt: request.prompt,
+    duration: request.duration,
+    aspectRatio: request.aspectRatio,
+  });
+  
+  return videoPath;
+}
+
+/**
+ * Save video with offline support
+ */
+export async function saveVideo(
+  userId: string,
+  videoFile: File,
+  videoData: {
+    projectId?: string;
+    sourceImagePath?: string;
+    prompt: string;
+    duration?: number;
+    aspectRatio?: string;
+  }
+): Promise<string> {
+  if (!syncService.isOnline()) {
+    // Queue for later sync
+    await syncService.queueChange({
+      type: 'create',
+      entity: 'video',
+      data: {
+        projectId: videoData.projectId,
+        videoFile,
+        sourceImagePath: videoData.sourceImagePath,
+        prompt: videoData.prompt,
+        duration: videoData.duration,
+        aspectRatio: videoData.aspectRatio,
+        base64Video: true,
+      },
+      userId,
+    });
+    
+    // Return temporary path
+    return `temp/${userId}/videos/${Date.now()}_video.mp4`;
+  }
+
+  // Upload video and save to database
+  const videoPath = await storageService.uploadVideo(userId, videoFile, 'videos');
+  
+  await databaseService.saveVideo(userId, {
+    projectId: videoData.projectId,
+    storagePath: videoPath,
+    sourceImagePath: videoData.sourceImagePath,
+    prompt: videoData.prompt,
+    duration: videoData.duration,
+    aspectRatio: videoData.aspectRatio,
+  });
+  
+  return videoPath;
+}
+
+/**
+ * Delete video with offline support
+ */
+export async function deleteVideo(
+  videoId: string,
+  userId: string
+): Promise<void> {
+  if (!syncService.isOnline()) {
+    // Queue for later sync
+    await syncService.queueChange({
+      type: 'delete',
+      entity: 'video',
+      data: { id: videoId },
+      userId,
+    });
+    return;
+  }
+
+  // Delete from database and storage (databaseService.deleteVideo handles both)
+  await databaseService.deleteVideo(videoId, userId);
+}
+
+/**
+ * Retry failed video upload with exponential backoff
+ */
+export async function retryVideoUpload(
+  userId: string,
+  videoFile: File,
+  maxRetries: number = 3,
+  initialDelay: number = 1000
+): Promise<string> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      // Check if online before attempting
+      if (!syncService.isOnline()) {
+        throw new Error('Device is offline');
+      }
+      
+      const videoPath = await storageService.uploadVideo(userId, videoFile, 'videos');
+      return videoPath;
+    } catch (error) {
+      lastError = error as Error;
+      
+      // If this is not the last attempt, wait before retrying
+      if (attempt < maxRetries - 1) {
+        const delay = initialDelay * Math.pow(2, attempt);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  throw new Error(`Failed to upload video after ${maxRetries} attempts: ${lastError?.message}`);
+}
+
 // Re-export read operations directly from databaseService
 // These don't need offline support as they only read data
 export const getProjects = databaseService.getProjects;
 export const getBrandKit = databaseService.getBrandKit;
 export const getPromptTemplates = databaseService.getPromptTemplates;
 export const getSavedMockups = databaseService.getSavedMockups;
+export const getVideos = databaseService.getVideos;

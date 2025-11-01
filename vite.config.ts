@@ -24,7 +24,9 @@ export default defineConfig(({ mode }) => {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.SUPABASE_URL': JSON.stringify(env.SUPABASE_URL),
-        'process.env.SUPABASE_ANON_KEY': JSON.stringify(env.SUPABASE_ANON_KEY)
+        'process.env.SUPABASE_ANON_KEY': JSON.stringify(env.SUPABASE_ANON_KEY),
+        'process.env.VIDEO_MAX_DURATION': JSON.stringify(env.VITE_VIDEO_MAX_DURATION || '10'),
+        'process.env.VIDEO_MAX_FILE_SIZE': JSON.stringify(env.VITE_VIDEO_MAX_FILE_SIZE || '20971520')
       },
       resolve: {
         alias: {

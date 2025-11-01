@@ -198,3 +198,42 @@ export async function processImageForUser(imageBase64: string, userId: string): 
   
   return watermarked;
 }
+
+/**
+ * Apply watermark overlay to a video
+ * Note: This is a placeholder implementation. Actual video watermarking requires
+ * server-side processing with tools like FFmpeg. For now, we'll apply watermark
+ * to the video thumbnail or first frame.
+ * 
+ * @param videoBase64 - Base64 encoded video data
+ * @param logoBase64 - Base64 encoded logo image (optional)
+ * @returns Base64 encoded video with watermark (currently returns original)
+ */
+export async function applyWatermarkToVideo(
+  videoBase64: string,
+  logoBase64?: string | null
+): Promise<string> {
+  // TODO: Implement actual video watermarking
+  // This requires server-side processing with FFmpeg or similar tools
+  // For client-side implementation, we would need to:
+  // 1. Extract video frames
+  // 2. Apply watermark to each frame
+  // 3. Re-encode video
+  // This is computationally expensive and not recommended for client-side
+  
+  console.warn('Video watermarking is not yet implemented. Returning original video.');
+  return videoBase64;
+}
+
+/**
+ * Check if video watermark should be applied based on brand kit settings
+ * @param brandKitUseWatermark - Brand kit watermark setting
+ * @param brandKitLogo - Brand kit logo (if available)
+ * @returns True if watermark should be applied
+ */
+export function shouldApplyVideoWatermark(
+  brandKitUseWatermark: boolean,
+  brandKitLogo: string | null
+): boolean {
+  return brandKitUseWatermark && brandKitLogo !== null;
+}

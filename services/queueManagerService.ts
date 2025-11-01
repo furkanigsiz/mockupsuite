@@ -15,9 +15,13 @@ interface DbQueueItem {
     prompt: string;
     images: string[];
     aspectRatio?: string;
+    duration?: number;
+    videoGeneration?: boolean;
   };
   result_data?: {
-    generatedImages: string[];
+    generatedImages?: string[];
+    videoUrl?: string;
+    duration?: number;
   };
   error_message?: string;
   created_at: string;
@@ -31,6 +35,8 @@ export interface RenderRequest {
   prompt: string;
   images: string[];
   aspectRatio?: string;
+  duration?: number;
+  videoGeneration?: boolean;
 }
 
 export interface QueuePosition {
@@ -125,6 +131,8 @@ export async function addToQueue(request: RenderRequest): Promise<QueueItem> {
       prompt: request.prompt.trim(),
       images: request.images,
       aspectRatio: request.aspectRatio,
+      duration: request.duration,
+      videoGeneration: request.videoGeneration,
     },
   };
 
@@ -135,6 +143,8 @@ export async function addToQueue(request: RenderRequest): Promise<QueueItem> {
     prompt: insertData.request_data.prompt,
     promptLength: insertData.request_data.prompt.length,
     imagesCount: insertData.request_data.images.length,
+    videoGeneration: insertData.request_data.videoGeneration,
+    duration: insertData.request_data.duration,
   });
 
   // Insert into queue
@@ -419,7 +429,7 @@ export function subscribeToQueueUpdates(
 export async function updateQueueItemStatus(
   requestId: string,
   status: QueueItemStatus,
-  resultData?: { generatedImages: string[] },
+  resultData?: { generatedImages?: string[]; videoUrl?: string; duration?: number },
   errorMessage?: string
 ): Promise<QueueItem> {
   const updateData: any = {

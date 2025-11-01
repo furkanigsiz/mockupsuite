@@ -7,12 +7,6 @@ import LazyImage from './LazyImage';
 import SearchIcon from './icons/SearchIcon';
 import DownloadIcon from './icons/DownloadIcon';
 import TrashIcon from './icons/TrashIcon';
-import GridViewIcon from './icons/GridViewIcon';
-import PersonIcon from './icons/PersonIcon';
-import SettingsIcon from './icons/SettingsIcon';
-import LogoutIcon from './icons/LogoutIcon';
-import ChatBubbleIcon from './icons/ChatBubbleIcon';
-import NotificationsIcon from './icons/NotificationsIcon';
 import ExpandMoreIcon from './icons/ExpandMoreIcon';
 import VisibilityIcon from './icons/VisibilityIcon';
 import AddPhotoAlternateIcon from './icons/AddPhotoAlternateIcon';
@@ -196,59 +190,19 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ projects, setProjects, onNavi
     };
 
     return (
-        <div className="flex min-h-screen w-full">
-            {/* SideNavBar */}
-            <aside className="flex flex-col w-64 bg-background-light dark:bg-[#101F22] border-r border-gray-200 dark:border-gray-800">
-                <div className="flex items-center gap-2.5 p-6 border-b border-gray-200 dark:border-gray-800">
-                    <div className="size-6 text-primary">
-                        <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                            <path clipRule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor" fillRule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <h2 className="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">MockupSuite</h2>
+        <div className="w-full min-h-screen bg-background-light dark:bg-background-dark">
+            {/* Page Content */}
+            <main className="flex-1 p-8 overflow-y-auto">
+                {/* New Create Button - Only on Gallery Page */}
+                <div className="max-w-7xl mx-auto mb-6">
+                    <button 
+                        onClick={() => onNavigate('generator')} 
+                        className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg font-semibold transition-colors"
+                    >
+                        <AddPhotoAlternateIcon />
+                        <span>{t('dashboard_generate_new_button')}</span>
+                    </button>
                 </div>
-                <div className="flex flex-col justify-between flex-1 p-4">
-                    <div className="flex flex-col gap-2">
-                        <a className="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary" href="#">
-                            <GridViewIcon className="fill-primary" fill="currentColor" />
-                            <p className="text-sm font-medium leading-normal">{t('dashboard_nav_creations')}</p>
-                        </a>
-                        <a className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/50 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200" href="#">
-                            <PersonIcon />
-                            <p className="text-sm font-medium leading-normal">{t('dashboard_nav_profile')}</p>
-                        </a>
-                        <a className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/50 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200" href="#">
-                            <SettingsIcon />
-                            <p className="text-sm font-medium leading-normal">{t('dashboard_nav_settings')}</p>
-                        </a>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <a className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/50 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200" href="#">
-                            <LogoutIcon />
-                            <p className="text-sm font-medium leading-normal">{t('dashboard_nav_logout')}</p>
-                        </a>
-                    </div>
-                </div>
-            </aside>
-             {/* Main Content */}
-            <div className="flex flex-col flex-1">
-                {/* TopNavBar */}
-                <header className="flex items-center justify-end whitespace-nowrap border-b border-gray-200 dark:border-gray-800 px-8 py-4 bg-background-light dark:bg-[#101F22]">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => onNavigate('generator')} className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-[#111718] text-sm font-bold leading-normal tracking-[0.015em]">
-                            <span className="truncate">{t('dashboard_generate_new_button')}</span>
-                        </button>
-                        <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
-                            <ChatBubbleIcon />
-                        </button>
-                        <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
-                            <NotificationsIcon />
-                        </button>
-                        <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style={{backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCMwZi-pG1PZZYH83MPiRHO9dZEPc2IiF2WaiprfN-d9Oid9-LB-TWFIkn8FWyJZSGY5-BdqGsQARICF-0yjuy2WXB5O88gHnDY2zsyKgqEn7bOVVfb-0Gv84TIXuyRg6wMSAB-hvLP462c7leIeIwD4LDBW-NIwq9Ep92uea5u_MhMZ10vM4NMLH3ZA2-v-nHIJibRUcgoCD9xsCt1Kr6Q2CUai7ujRyocmFEmIc5taClReiba0bNNZ7ILNeZId6t0DMDZlV7vx3Q")'}}></div>
-                    </div>
-                </header>
-                {/* Page Content */}
-                <main className="flex-1 p-8 overflow-y-auto">
                     <div className="max-w-7xl mx-auto">
                         <div className="flex flex-wrap justify-between gap-3 mb-6">
                             <h1 className="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">{t('dashboard_title')}</h1>
@@ -354,8 +308,7 @@ const GalleryPage: React.FC<GalleryPageProps> = ({ projects, setProjects, onNavi
                             </div>
                         )}
                     </div>
-                </main>
-            </div>
+            </main>
         </div>
     );
 };

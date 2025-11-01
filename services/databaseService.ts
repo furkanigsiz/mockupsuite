@@ -39,6 +39,20 @@ interface DbMockup {
   created_at: string;
 }
 
+interface DbVideo {
+  id: string;
+  user_id: string;
+  project_id: string | null;
+  storage_path: string;
+  source_image_path: string | null;
+  prompt: string;
+  duration: number | null;
+  aspect_ratio: string | null;
+  brand_kit_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // Project Operations
 export async function getProjects(userId: string): Promise<Project[]> {
   // Check cache first
@@ -314,6 +328,25 @@ export async function saveBrandKit(
   return savedBrandKit;
 }
 
+export async function getBrandKitId(userId: string): Promise<string | null> {
+  try {
+    const { data, error } = await supabase
+      .from('brand_kits')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`Failed to fetch brand kit ID: ${error.message}`);
+    }
+
+    return data ? data.id : null;
+  } catch (error) {
+    console.error('Error fetching brand kit ID:', error);
+    return null;
+  }
+}
+
 // Prompt Template Operations
 export async function getPromptTemplates(userId: string): Promise<PromptTemplate[]> {
   const { data, error } = await supabase
@@ -469,5 +502,140 @@ export async function deleteMockupByImagePath(imagePath: string): Promise<void> 
 
   if (error) {
     throw new Error(`Failed to delete mockup by image path: ${error.message}`);
+  }
+}
+
+// Video Operations
+
+/**
+ * Saves a video record to the database
+ * @param userId - User ID
+ * @param videoData - Video metadata
+ * @returns Saved video record
+ */
+export async function saveVideo(
+  userId: string,
+  videoData: {
+    projectId?: string;
+    storagePath: string;
+    sourceImagePath?: string;
+    prompt: string;
+    duration?: number;
+    aspectRatio?: string;
+    brandKitId?: string;
+  }
+): Promise<DbVideo> {
+  const { data, error } = await supabase
+    .from('videos')
+    .insert({
+      user_id: userId,
+      project_id: videoData.projectId || null,
+      storage_path: videoData.storagePath,
+      source_image_path: videoData.sourceImagePath || null,
+      prompt: videoData.prompt,
+      duration: videoData.duration || null,
+      aspect_ratio: videoData.aspectRatio || null,
+      brand_kit_id: videoData.brandKitId || null,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to save video: ${error.message}`);
+  }
+
+  return data as DbVideo;
+}
+
+/**
+ * Retrieves user's videos from database with pagination support
+ * @param userId - User ID
+ * @param limit - Maximum number of videos to retrieve (default: 20)
+ * @param cursor - Pagination cursor (created_at timestamp)
+ * @returns Paginated video records
+ */
+export interface PaginatedVideos {
+  videos: DbVideo[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+export async function getVideos(
+  userId: string,
+  limit: number = 20,
+  cursor?: string
+): Promise<PaginatedVideos> {
+  let query = supabase
+    .from('videos')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit + 1); // Fetch one extra to check if there are more
+
+  if (cursor) {
+    query = query.lt('created_at', cursor);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(`Failed to fetch videos: ${error.message}`);
+  }
+
+  const videos = data as DbVideo[];
+  const hasMore = videos.length > limit;
+  const results = hasMore ? videos.slice(0, limit) : videos;
+  const nextCursor = hasMore && results.length > 0 
+    ? results[results.length - 1].created_at 
+    : null;
+
+  return {
+    videos: results,
+    hasMore,
+    nextCursor,
+  };
+}
+
+/**
+ * Deletes a video record from database and triggers storage deletion
+ * @param videoId - Video ID
+ * @param userId - User ID (for verification)
+ */
+export async function deleteVideo(videoId: string, userId: string): Promise<void> {
+  // First, get the video to retrieve storage path
+  const { data: video, error: fetchError } = await supabase
+    .from('videos')
+    .select('storage_path')
+    .eq('id', videoId)
+    .eq('user_id', userId)
+    .single();
+
+  if (fetchError) {
+    throw new Error(`Failed to fetch video for deletion: ${fetchError.message}`);
+  }
+
+  if (!video) {
+    throw new Error('Video not found or access denied');
+  }
+
+  // Delete from database (cascading deletes will be handled by DB)
+  const { error: deleteError } = await supabase
+    .from('videos')
+    .delete()
+    .eq('id', videoId)
+    .eq('user_id', userId);
+
+  if (deleteError) {
+    throw new Error(`Failed to delete video: ${deleteError.message}`);
+  }
+
+  // Delete from storage
+  try {
+    const { deleteVideo: deleteVideoFromStorage } = await import('./storageService');
+    await deleteVideoFromStorage(video.storage_path);
+  } catch (storageError) {
+    // Log storage deletion error but don't fail the operation
+    // since the database record is already deleted
+    console.error('Failed to delete video from storage:', storageError);
   }
 }

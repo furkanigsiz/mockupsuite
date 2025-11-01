@@ -42,3 +42,13 @@ export const downloadImage = (base64Image: string, fileName: string) => {
     link.click();
     document.body.removeChild(link);
   };
+
+export const downloadVideo = (videoUrl: string, fileName: string) => {
+    const link = document.createElement('a');
+    link.href = videoUrl;
+    link.download = fileName;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };

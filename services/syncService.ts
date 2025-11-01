@@ -9,7 +9,7 @@ const DB_VERSION = 1;
 const STORE_NAME = 'pending_changes';
 
 // Types for pending changes
-export type EntityType = 'project' | 'mockup' | 'brandKit' | 'template';
+export type EntityType = 'project' | 'mockup' | 'brandKit' | 'template' | 'video';
 export type ChangeType = 'create' | 'update' | 'delete';
 
 export interface PendingChange {
@@ -155,6 +155,9 @@ async function processPendingChange(change: PendingChange): Promise<void> {
       case 'template':
         await processTemplateChange(change);
         break;
+      case 'video':
+        await processVideoChange(change);
+        break;
       default:
         throw new Error(`Unknown entity type: ${change.entity}`);
     }
@@ -239,6 +242,40 @@ async function processTemplateChange(change: PendingChange): Promise<void> {
       break;
     case 'delete':
       await databaseService.deletePromptTemplate(change.data.id);
+      break;
+  }
+}
+
+/**
+ * Process video changes
+ */
+async function processVideoChange(change: PendingChange): Promise<void> {
+  switch (change.type) {
+    case 'create':
+      // For videos, we need to upload the video file first if it's base64
+      if (change.data.base64Video && change.data.videoFile) {
+        const videoPath = await storageService.uploadVideo(
+          change.userId,
+          change.data.videoFile,
+          'videos'
+        );
+        
+        // Save video metadata to database
+        await databaseService.saveVideo(change.userId, {
+          projectId: change.data.projectId,
+          storagePath: videoPath,
+          sourceImagePath: change.data.sourceImagePath,
+          prompt: change.data.prompt,
+          duration: change.data.duration,
+          aspectRatio: change.data.aspectRatio,
+        });
+      }
+      break;
+    case 'delete':
+      if (change.data.id) {
+        // deleteVideo handles both database and storage deletion
+        await databaseService.deleteVideo(change.data.id, change.userId);
+      }
       break;
   }
 }

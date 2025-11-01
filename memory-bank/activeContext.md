@@ -2,14 +2,20 @@
 
 ## Current Work Focus
 
-**Phase**: Payment System Implementation - QuotaWidget Integration & Queue System Fixes
-**Goal**: Complete QuotaWidget integration and fix render queue database constraints
+**Phase**: Video Generation Feature Implementation
+**Goal**: Add video generation capabilities using Google's Veo 3 AI model
 
 ### Immediate Next Steps
 
-1. ✅ Integrated QuotaWidget into AppHeader (Task 15)
-2. ✅ Fixed render_queue database constraint issues
-3. Continue with remaining payment system tasks (watermark, testing)
+1. ✅ Completed Task 7: VideoGeneratorControls component
+   - Created component structure with props interface
+   - Implemented image uploader section (reusing ImageUploader)
+   - Implemented video prompt input textarea
+   - Implemented duration selector (5s, 7s, 10s)
+   - Implemented aspect ratio selector (16:9, 9:16, 1:1)
+   - Implemented generate button with loading state
+2. ⏳ Next: Task 8 - Update App.tsx to support video mode
+3. Continue with remaining video generation tasks
 
 ## Recent Changes
 
@@ -46,10 +52,22 @@
     - `request_data` JSONB column (for backward compatibility)
   - Added validation to ensure prompt is never empty
   - Added debug logging for troubleshooting
+- ✅ **VIDEO GENERATION FEATURE**: Started implementation
+  - Created video generation spec (requirements, design, tasks)
+  - Completed Tasks 1-6: Type definitions, services, database migration, ModeSwitcher
+  - **Task 7 COMPLETED**: VideoGeneratorControls component
+    - Created component with proper TypeScript interface
+    - Reused ImageUploader component with maxImages=1 constraint
+    - Implemented video prompt textarea with translations
+    - Implemented duration selector (5s, 7s, 10s buttons)
+    - Implemented aspect ratio selector (16:9, 9:16, 1:1 buttons)
+    - Implemented generate button with loading state and validation
+    - Component follows existing patterns from GeneratorControls
+    - No test framework configured, skipped unit tests subtask
 
 ### In Progress
-- 🔄 Testing complete payment and generation flow
-- 🔄 Continuing with remaining payment system tasks
+- 🔄 Task 8: Update App.tsx to support video mode
+- 🔄 Continuing with video generation feature implementation
 
 ## Active Decisions and Considerations
 
@@ -175,6 +193,33 @@ useEffect(() => {
 
 ## Learnings and Project Insights
 
+### Video Generation Feature Patterns
+
+1. **Component Reusability**
+   - Successfully reused ImageUploader component for video source image
+   - Passed maxImages=1 to limit to single image selection
+   - Converted array to single image in VideoGeneratorControls
+   - Pattern: `const handleImageChange = (images: UploadedImage[]) => onSourceImageChange(images.length > 0 ? images[0] : null);`
+
+2. **Translation Keys**
+   - Added video-specific translation keys following existing patterns:
+     - `video_prompt_title`, `video_prompt_placeholder`
+     - `video_duration_label`, `video_aspect_ratio_label`
+     - `generate_video_button`, `generate_video_button_loading`
+   - Keys need to be added to all locale files (en.ts, tr.ts, es.ts)
+
+3. **Component Structure**
+   - Followed GeneratorControls.tsx patterns for consistency
+   - Used same styling classes for buttons and inputs
+   - Maintained same layout structure (gap-8 flex column)
+   - Duration/aspect ratio selectors use grid-cols-3 layout
+
+4. **Testing Approach**
+   - Project has no test framework configured (no Jest, Vitest, etc.)
+   - No existing test files in codebase
+   - Skipped unit tests subtask as per guidelines
+   - Future: Consider adding test framework for comprehensive testing
+
 ### Supabase Best Practices
 
 1. **Row Level Security (RLS)**
@@ -295,10 +340,10 @@ useEffect(() => {
 
 ## Current Blockers
 
-None - All critical bugs fixed:
-- ✅ expires_at field properly set
-- ✅ render_queue constraints satisfied
-- ✅ QuotaWidget integrated and functional
+None - Video generation feature progressing smoothly:
+- ✅ VideoGeneratorControls component created
+- ✅ Component follows existing patterns
+- ⏳ Need to integrate into App.tsx next
 
 ## Questions to Resolve
 

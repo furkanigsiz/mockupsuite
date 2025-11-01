@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthProvider';
 import { useTranslations } from '../hooks/useTranslations';
-import { getCurrentPlan, getRemainingQuota } from '../services/subscriptionService';
+import { getCurrentPlan, getRemainingQuota, getVideoQuotaInfo } from '../services/subscriptionService';
 import { getCreditBalance } from '../services/creditService';
 import { SUBSCRIPTION_PLANS } from '../types';
 import type { UserSubscription, QuotaInfo } from '../types';
@@ -16,6 +16,7 @@ const QuotaWidget: React.FC<QuotaWidgetProps> = ({ onUpgradeClick, refreshTrigge
   const { t } = useTranslations();
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [quotaInfo, setQuotaInfo] = useState<QuotaInfo | null>(null);
+  const [videoQuotaInfo, setVideoQuotaInfo] = useState<QuotaInfo | null>(null);
   const [creditBalance, setCreditBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,14 +29,16 @@ const QuotaWidget: React.FC<QuotaWidgetProps> = ({ onUpgradeClick, refreshTrigge
       setError(null);
 
       // Load subscription and quota info
-      const [subData, quotaData, credits] = await Promise.all([
+      const [subData, quotaData, videoQuota, credits] = await Promise.all([
         getCurrentPlan(user.id),
         getRemainingQuota(user.id).catch(() => null),
+        getVideoQuotaInfo(user.id).catch(() => null),
         getCreditBalance(user.id).catch(() => 0),
       ]);
 
       setSubscription(subData);
       setQuotaInfo(quotaData);
+      setVideoQuotaInfo(videoQuota);
       setCreditBalance(credits);
     } catch (err) {
       console.error('Error loading quota data:', err);
@@ -144,11 +147,11 @@ const QuotaWidget: React.FC<QuotaWidgetProps> = ({ onUpgradeClick, refreshTrigge
         )}
       </div>
 
-      {/* Quota Progress Bar */}
+      {/* Image Quota Progress Bar */}
       <div className="mb-3">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-            Kalan Kota
+            Kalan Görsel Kotası
           </span>
           <span className="text-xs font-semibold text-gray-900 dark:text-white">
             {quotaInfo.remaining} / {quotaInfo.total}
@@ -164,6 +167,47 @@ const QuotaWidget: React.FC<QuotaWidgetProps> = ({ onUpgradeClick, refreshTrigge
           {quotaInfo.used} mockup kullanıldı
         </p>
       </div>
+
+      {/* Video Quota Progress Bar */}
+      {videoQuotaInfo && (
+        <div className="mb-3 pb-3 border-b border-gray-200 dark:border-[#3b4f54]">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+              Kalan Video Kotası
+            </span>
+            <span className="text-xs font-semibold text-gray-900 dark:text-white">
+              {videoQuotaInfo.remaining} / {videoQuotaInfo.total}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-[#3b4f54] rounded-full h-2.5 overflow-hidden">
+            <div
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                videoQuotaInfo.total > 0
+                  ? (videoQuotaInfo.remaining / videoQuotaInfo.total) * 100 > 50
+                    ? 'bg-green-500'
+                    : (videoQuotaInfo.remaining / videoQuotaInfo.total) * 100 >= 20
+                    ? 'bg-yellow-500'
+                    : 'bg-red-500'
+                  : 'bg-gray-300'
+              }`}
+              style={{
+                width: `${Math.max(
+                  0,
+                  Math.min(
+                    100,
+                    videoQuotaInfo.total > 0
+                      ? (videoQuotaInfo.remaining / videoQuotaInfo.total) * 100
+                      : 0
+                  )
+                )}%`,
+              }}
+            ></div>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {videoQuotaInfo.used} video oluşturuldu
+          </p>
+        </div>
+      )}
 
       {/* Reset/Renewal Date */}
       <div className="mb-3 pb-3 border-b border-gray-200 dark:border-[#3b4f54]">

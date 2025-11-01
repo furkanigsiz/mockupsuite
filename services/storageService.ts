@@ -1,16 +1,22 @@
 import { supabase } from './supabaseClient';
 
 // Storage folder types
-type StorageFolder = 'uploads' | 'mockups' | 'logos';
+type StorageFolder = 'uploads' | 'mockups' | 'logos' | 'videos';
 
 // File validation constants
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB
 const ALLOWED_IMAGE_TYPES = [
   'image/jpeg',
   'image/jpg',
   'image/png',
   'image/webp',
   'image/gif',
+];
+const ALLOWED_VIDEO_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
 ];
 
 // URL cache to minimize API calls
@@ -287,5 +293,141 @@ export async function uploadBase64ImageWithThumbnail(
     // If thumbnail generation fails, return only the main image path
     console.error('Failed to generate thumbnail:', error);
     return { imagePath, thumbnailPath: imagePath };
+  }
+}
+
+/**
+ * Validates video file type and size
+ */
+function validateVideoFile(file: File): void {
+  if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
+    const error = new Error(
+      `Invalid video type: ${file.type}. Allowed types: ${ALLOWED_VIDEO_TYPES.join(', ')}`
+    );
+    (error as any).type = 'UNSUPPORTED_FORMAT';
+    throw error;
+  }
+
+  if (file.size > MAX_VIDEO_SIZE) {
+    const error = new Error(
+      `Video size exceeds maximum allowed size of ${MAX_VIDEO_SIZE / 1024 / 1024}MB`
+    );
+    (error as any).type = 'VALIDATION_ERROR';
+    throw error;
+  }
+}
+
+/**
+ * Uploads a video file to Supabase storage with retry logic
+ * @param userId - User ID
+ * @param file - Video file to upload
+ * @param folder - Storage folder (should be 'videos')
+ * @returns Storage path of the uploaded video
+ */
+export async function uploadVideo(
+  userId: string,
+  file: File,
+  folder: StorageFolder = 'videos'
+): Promise<string> {
+  // Validate video file
+  validateVideoFile(file);
+
+  // Generate unique file path
+  const filePath = generateFilePath(userId, folder, file.name);
+
+  // Retry logic for upload
+  const maxRetries = 3;
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('user-files')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (error) {
+        const uploadError = new Error(`Failed to upload video: ${error.message}`);
+        (uploadError as any).type = 'VIDEO_UPLOAD_FAILED';
+        throw uploadError;
+      }
+
+      return data.path;
+    } catch (error) {
+      lastError = error as Error;
+      
+      // If this is not the last attempt, wait before retrying
+      if (attempt < maxRetries) {
+        // Exponential backoff: 1s, 2s, 4s
+        const delay = Math.pow(2, attempt - 1) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  // If all retries failed, throw the last error with type information
+  const finalError = new Error(`Failed to upload video after ${maxRetries} attempts: ${lastError?.message}`);
+  (finalError as any).type = 'VIDEO_UPLOAD_FAILED';
+  throw finalError;
+}
+
+/**
+ * Gets a signed URL for a video with caching
+ * Signed URLs expire after 1 hour (3600 seconds)
+ * @param path - Storage path of the video
+ * @returns Signed URL for the video
+ */
+export async function getVideoUrl(path: string): Promise<string> {
+  // Check cache first
+  const cached = urlCache.get(path);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.url;
+  }
+
+  try {
+    // Generate signed URL (expires in 1 hour)
+    const { data, error } = await supabase.storage
+      .from('user-files')
+      .createSignedUrl(path, 3600);
+
+    if (error) {
+      throw new Error(`Failed to get video URL: ${error.message}`);
+    }
+
+    if (!data.signedUrl) {
+      throw new Error('Failed to generate signed URL for video');
+    }
+
+    // Cache the URL (expire 5 minutes before actual expiration to be safe)
+    const expiresAt = Date.now() + (3600 - 300) * 1000;
+    urlCache.set(path, { url: data.signedUrl, expiresAt });
+
+    return data.signedUrl;
+  } catch (error) {
+    throw new Error(`Failed to retrieve video URL: ${(error as Error).message}`);
+  }
+}
+
+/**
+ * Deletes a video from Supabase storage
+ * @param path - Storage path of the video
+ */
+export async function deleteVideo(path: string): Promise<void> {
+  try {
+    const { error } = await supabase.storage
+      .from('user-files')
+      .remove([path]);
+
+    if (error) {
+      throw new Error(`Failed to delete video: ${error.message}`);
+    }
+
+    // Remove from cache
+    urlCache.delete(path);
+  } catch (error) {
+    throw new Error(`Failed to delete video: ${(error as Error).message}`);
   }
 }

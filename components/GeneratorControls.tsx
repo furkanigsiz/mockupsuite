@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppMode, Project, BrandKit as BrandKitType, PromptTemplate, ProductTemplate } from '../types';
+import { AppMode, Project, BrandKit as BrandKitType, PromptTemplate, ProductTemplate, UploadedImage } from '../types';
 import ModeSwitcher from './ModeSwitcher';
 import ProjectManager from './ProjectManager';
 import ImageUploader from './ImageUploader';
@@ -11,6 +11,7 @@ import ProductSelector from './ProductSelector';
 import DesignUploader from './DesignUploader';
 import StyleSelector, { StylePreset } from './StyleSelector';
 import BrandKit from './BrandKit';
+import VideoGeneratorControls from './VideoGeneratorControls';
 
 const PRODUCT_COLORS = ['White', 'Black', 'Gray', 'Navy', 'Red', 'Green'];
 
@@ -43,6 +44,19 @@ interface GeneratorControlsProps {
     isLoading: boolean;
     handleSceneGenerate: () => void;
     handleProductGenerate: () => void;
+    // Video mode props
+    videoSourceImage?: UploadedImage | null;
+    onVideoSourceImageChange?: (image: UploadedImage | null) => void;
+    videoPrompt?: string;
+    onVideoPromptChange?: (prompt: string) => void;
+    videoDuration?: number;
+    onVideoDurationChange?: (duration: number) => void;
+    videoAspectRatio?: '16:9' | '9:16' | '1:1';
+    onVideoAspectRatioChange?: (ratio: '16:9' | '9:16' | '1:1') => void;
+    handleVideoGenerate?: () => void;
+    videoSuggestedPrompts?: string[];
+    handleVideoSuggestPrompts?: () => void;
+    isVideoSuggesting?: boolean;
 }
 
 const GeneratorControls: React.FC<GeneratorControlsProps> = (props) => {
@@ -53,7 +67,10 @@ const GeneratorControls: React.FC<GeneratorControlsProps> = (props) => {
         handleSuggestPrompts, isSuggesting, handleSavePrompt, selectedProduct,
         setSelectedProduct, designImage, setDesignImage, productColor, setProductColor,
         productStyle, setProductStyle, stylePrompt, setStylePrompt, brandKit,
-        setBrandKit, isLoading, handleSceneGenerate, handleProductGenerate
+        setBrandKit, isLoading, handleSceneGenerate, handleProductGenerate,
+        videoSourceImage, onVideoSourceImageChange, videoPrompt, onVideoPromptChange,
+        videoDuration, onVideoDurationChange, videoAspectRatio, onVideoAspectRatioChange,
+        handleVideoGenerate, videoSuggestedPrompts, handleVideoSuggestPrompts, isVideoSuggesting
     } = props;
 
     const aspectRatios = [
@@ -66,6 +83,29 @@ const GeneratorControls: React.FC<GeneratorControlsProps> = (props) => {
     const isGenerateDisabled = isLoading || (mode === 'scene'
         ? (!currentProject || currentProject.uploadedImages.length === 0 || !currentProject.prompt.trim())
         : (!selectedProduct || !designImage));
+
+    // If video mode, render VideoGeneratorControls
+    if (mode === 'video') {
+        return (
+            <VideoGeneratorControls
+                mode={mode}
+                onModeChange={setMode}
+                sourceImage={videoSourceImage || null}
+                onSourceImageChange={onVideoSourceImageChange || (() => {})}
+                videoPrompt={videoPrompt || ''}
+                onVideoPromptChange={onVideoPromptChange || (() => {})}
+                videoDuration={videoDuration || 7}
+                onVideoDurationChange={onVideoDurationChange || (() => {})}
+                videoAspectRatio={videoAspectRatio || '16:9'}
+                onVideoAspectRatioChange={onVideoAspectRatioChange || (() => {})}
+                isLoading={isLoading}
+                onGenerate={handleVideoGenerate || (() => {})}
+                onSuggestPrompts={handleVideoSuggestPrompts}
+                isSuggesting={isVideoSuggesting || false}
+                suggestedPrompts={videoSuggestedPrompts || []}
+            />
+        );
+    }
 
     return (
         <div className="flex flex-col gap-8">

@@ -263,6 +263,105 @@ Event listeners for state changes:
 - `onConnectionChange`: Online/offline status
 - Future: Real-time subscriptions
 
+## Video Generation Architecture
+
+### Component Structure
+
+```
+App.tsx
+  ↓
+ModeSwitcher (includes 'video' mode)
+  ↓
+GeneratorControls (mode-aware)
+  ↓
+VideoGeneratorControls (when mode === 'video')
+  ↓
+├── ImageUploader (reused, maxImages=1)
+├── Video Prompt Textarea
+├── Duration Selector (5s, 7s, 10s)
+├── Aspect Ratio Selector (16:9, 9:16, 1:1)
+└── Generate Button
+```
+
+### Video Generation Flow
+
+```
+User uploads source image
+  ↓
+User enters video prompt
+  ↓
+User selects duration & aspect ratio
+  ↓
+User clicks generate
+  ↓
+Check video quota (subscriptionService)
+  ↓
+Add to queue (queueManagerService)
+  ↓
+Generate video (veo3Service)
+  ↓
+Upload to storage (storageService)
+  ↓
+Get signed URL
+  ↓
+Update queue status
+  ↓
+Display video result
+  ↓
+Decrement video quota
+```
+
+### VideoGeneratorControls Pattern
+
+**Props Interface**:
+```typescript
+interface VideoGeneratorControlsProps {
+  sourceImage: UploadedImage | null;
+  onSourceImageChange: (image: UploadedImage | null) => void;
+  videoPrompt: string;
+  onVideoPromptChange: (prompt: string) => void;
+  videoDuration: number;
+  onVideoDurationChange: (duration: number) => void;
+  videoAspectRatio: '16:9' | '9:16' | '1:1';
+  onVideoAspectRatioChange: (ratio: '16:9' | '9:16' | '1:1') => void;
+  isLoading: boolean;
+  onGenerate: () => void;
+}
+```
+
+**Image Uploader Reuse Pattern**:
+```typescript
+// Convert ImageUploader's array to single image
+const handleImageChange = (images: UploadedImage[]) => {
+  onSourceImageChange(images.length > 0 ? images[0] : null);
+};
+
+// Pass to ImageUploader
+<ImageUploader
+  onImagesChange={handleImageChange}
+  uploadedImages={sourceImage ? [sourceImage] : []}
+/>
+```
+
+**Button Group Pattern** (Duration/Aspect Ratio):
+```typescript
+<div className="grid grid-cols-3 gap-2">
+  {options.map((option) => (
+    <button
+      key={option}
+      onClick={() => onChange(option)}
+      className={`py-2 px-3 text-sm font-semibold rounded-lg transition-colors ${
+        selected === option
+          ? 'bg-primary text-background-dark'
+          : 'bg-neutral-light dark:bg-neutral-dark/40 hover:bg-neutral-medium/20'
+      }`}
+    >
+      {label}
+    </button>
+  ))}
+</div>
+```
+
 ## Component Relationships
 
 ### Authentication Flow

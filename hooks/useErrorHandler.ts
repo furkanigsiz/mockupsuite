@@ -89,6 +89,31 @@ export function useErrorHandler() {
     [handleError]
   );
 
+  const handleVideoError = useCallback(
+    (error: any, onRetry?: () => void | Promise<void>) => {
+      const supabaseError = handleError(error, { onRetry });
+
+      // Additional video-specific handling
+      if (
+        supabaseError.type === 'VIDEO_GENERATION_FAILED' ||
+        supabaseError.type === 'VIDEO_UPLOAD_FAILED' ||
+        supabaseError.type === 'GENERATION_TIMEOUT' ||
+        supabaseError.type === 'INVALID_SOURCE_IMAGE' ||
+        supabaseError.type === 'UNSUPPORTED_FORMAT'
+      ) {
+        // Track video error for analytics
+        console.warn('Video error occurred:', {
+          type: supabaseError.type,
+          message: supabaseError.message,
+          timestamp: new Date().toISOString(),
+        });
+      }
+
+      return supabaseError;
+    },
+    [handleError]
+  );
+
   const showSuccess = useCallback(
     (message: string, duration?: number) => {
       toast.success(message, duration);
@@ -114,6 +139,7 @@ export function useErrorHandler() {
     handleError,
     handlePaymentError,
     handleQuotaError,
+    handleVideoError,
     showSuccess,
     showWarning,
     showInfo,
