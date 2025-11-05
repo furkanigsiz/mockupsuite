@@ -13,11 +13,15 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Expose port
 EXPOSE 3000
 
-# Development command
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Use entrypoint script
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Build stage
 FROM node:18-alpine as build

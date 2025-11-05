@@ -9,9 +9,9 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
-      - VITE_GEMINI_API_KEY=AIzaSyDRkOAPwGgKX2nS18FbqH1rJsR7uMtqXuY
-      - VITE_SUPABASE_URL=https://wjliqsmzsyfmiohwfonc.supabase.co
-      - VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqbGlxc216c3lmbWlvaHdmb25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NzM3MjksImV4cCI6MjA3NzQ0OTcyOX0.FB4dIeEbJiITHoNix7h7CBYzaMjONYUU9U7aKTP42_U
+      - VITE_GEMINI_API_KEY=${VITE_GEMINI_API_KEY}
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
     volumes:
       - .:/app
       - /app/node_modules

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { LanguageProvider } from './hooks/useTranslations';
 import { AuthProvider } from './components/AuthProvider';
+import './utils/containerReset';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

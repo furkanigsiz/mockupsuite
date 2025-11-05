@@ -578,36 +578,5 @@ Bu implementation plan, iyzico ödeme sistemi entegrasyonunu adım adım kod yaz
   - Payment failure scenarios test et
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 22.2 Quota management test et
-  - Free tier quota limit test et
-  - Subscription quota decrement test et
-  - Credit deduction test et
-  - Quota reset test et
-  - _Requirements: 1.4, 2.4, 3.5, 10.2_
 
-- [ ] 22.3 Queue system test et
-  - Priority queue test et (free vs paid)
-  - Queue position tracking test et
-  - Wait time estimation test et
-  - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
-
-- [ ] 22.4 Watermark ve resize test et
-  - Free tier watermark application test et
-  - Image resize (512px) test et
-  - Paid tier (no watermark) test et
-  - _Requirements: 8.1, 8.2, 8.3_
-
-- [ ] 22.5 Registration flow test et
-  - Yeni kullanıcı kaydı test et
-  - Plan selection zorunluluğu test et
-  - Free tier activation test et
-  - Paid plan activation test et
-  - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
-
-- [ ] 23. Documentation ve deployment
-  - README'ye payment system dokümantasyonu ekle
-  - İyzico setup guide yaz
-  - Environment variables dokümante et
-  - Deployment checklist oluştur (production için)
-  - _Requirements: Tüm requirements_
 

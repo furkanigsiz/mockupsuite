@@ -639,3 +639,83 @@ export async function deleteVideo(videoId: string, userId: string): Promise<void
     console.error('Failed to delete video from storage:', storageError);
   }
 }
+
+// Shopify Products Operations
+
+/**
+ * Get Shopify products for a user with pagination
+ */
+export interface PaginatedShopifyProducts {
+  products: any[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+export async function getShopifyProducts(
+  userId: string,
+  limit: number = 20,
+  cursor?: string
+): Promise<PaginatedShopifyProducts> {
+  let query = supabase
+    .from('shopify_products')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit + 1);
+
+  if (cursor) {
+    query = query.lt('created_at', cursor);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(`Failed to fetch Shopify products: ${error.message}`);
+  }
+
+  const products = data || [];
+  const hasMore = products.length > limit;
+  const results = hasMore ? products.slice(0, limit) : products;
+  const nextCursor = hasMore && results.length > 0 
+    ? results[results.length - 1].created_at 
+    : null;
+
+  return {
+    products: results,
+    hasMore,
+    nextCursor,
+  };
+}
+
+/**
+ * Delete a Shopify product
+ */
+export async function deleteShopifyProduct(productId: string, userId: string): Promise<void> {
+  const { error } = await supabase
+    .from('shopify_products')
+    .delete()
+    .eq('id', productId)
+    .eq('user_id', userId);
+
+  if (error) {
+    throw new Error(`Failed to delete Shopify product: ${error.message}`);
+  }
+}
+
+/**
+ * Get a single Shopify product by ID
+ */
+export async function getShopifyProduct(productId: string, userId: string): Promise<any> {
+  const { data, error } = await supabase
+    .from('shopify_products')
+    .select('*')
+    .eq('id', productId)
+    .eq('user_id', userId)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch Shopify product: ${error.message}`);
+  }
+
+  return data;
+}

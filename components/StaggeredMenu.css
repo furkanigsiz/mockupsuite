@@ -16,9 +16,19 @@
   pointer-events: none;
 }
 
-.staggered-menu-wrapper.fixed-wrapper .sm-overlay,
-.staggered-menu-wrapper.fixed-wrapper .sm-prelayers,
-.staggered-menu-wrapper.fixed-wrapper .staggered-menu-panel {
+/* Header always gets pointer events */
+.staggered-menu-wrapper.fixed-wrapper .staggered-menu-header {
+  pointer-events: auto;
+}
+
+/* Panel and prelayers only get pointer events when menu is open */
+.staggered-menu-wrapper.fixed-wrapper[data-open] .sm-prelayers,
+.staggered-menu-wrapper.fixed-wrapper[data-open] .staggered-menu-panel {
+  pointer-events: auto;
+}
+
+/* Overlay only gets pointer events when menu is open */
+.staggered-menu-wrapper.fixed-wrapper[data-open] .sm-overlay {
   pointer-events: auto;
 }
 
@@ -43,11 +53,7 @@
   justify-content: space-between;
   padding: 1.5rem;
   background: transparent;
-  pointer-events: none;
   z-index: 60;
-}
-
-.staggered-menu-header > * {
   pointer-events: auto;
 }
 
@@ -157,6 +163,12 @@
   padding: 6em 2em 2em 2em;
   overflow-y: auto;
   z-index: 57;
+  pointer-events: none;
+}
+
+/* Panel gets pointer events only when open */
+.staggered-menu-wrapper[data-open] .staggered-menu-panel {
+  pointer-events: auto;
 }
 
 /* Dark mode support */
@@ -205,7 +217,7 @@
   left: 0;
   bottom: 0;
   width: clamp(260px, 38vw, 420px);
-  pointer-events: none;
+  pointer-events: none !important;
   z-index: 56;
 }
 

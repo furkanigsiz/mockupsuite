@@ -14,6 +14,7 @@ interface LanguageContextType {
     language: string;
     setLanguage: (lang: string) => void;
     t: (key: keyof Translations, replacements?: Record<string, string | number>) => any;
+    translations: Translations;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -26,6 +27,8 @@ const getInitialLanguage = (): string => {
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [language, setLanguage] = useState<string>(getInitialLanguage());
+
+    const currentTranslations = useMemo(() => translations[language] || en, [language]);
 
     const t = useCallback((key: keyof Translations, replacements?: Record<string, string | number>) => {
         const langFile = translations[language] || en;
@@ -44,7 +47,8 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         language,
         setLanguage,
         t,
-    }), [language, t]);
+        translations: currentTranslations,
+    }), [language, t, currentTranslations]);
 
     return React.createElement(LanguageContext.Provider, { value }, children);
 };

@@ -1,6 +1,7 @@
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import './StaggeredMenu.css';
+import { useTranslations } from '../hooks/useTranslations';
 
 export interface StaggeredMenuItem {
   label: string;
@@ -56,6 +57,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   onMenuClose,
   onLogout
 }: StaggeredMenuProps) => {
+  const { t } = useTranslations();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = externalIsOpen !== undefined ? externalIsOpen : internalOpen;
   const openRef = useRef(false);
@@ -411,7 +413,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
         </button>
       </header>
 
-      <aside id="staggered-menu-panel" ref={panelRef} className="staggered-menu-panel" aria-hidden={!open}>
+      <aside id="staggered-menu-panel" ref={panelRef} className="staggered-menu-panel" aria-hidden={!open} inert={!open ? true : undefined}>
         <div className="sm-panel-inner">
           <ul className="sm-panel-list" role="list" data-numbering={displayItemNumbering || undefined}>
             {items && items.length ? (
@@ -422,6 +424,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                     href={it.link} 
                     aria-label={it.ariaLabel} 
                     data-index={idx + 1}
+                    tabIndex={open ? 0 : -1}
                     onClick={(e) => {
                       if (it.onClick) {
                         e.preventDefault();
@@ -467,12 +470,13 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                   toggleMenu();
                 }}
                 className="sm-logout-button"
-                aria-label="Sign out"
+                aria-label={t('menu_sign_out')}
+                tabIndex={open ? 0 : -1}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-                <span>Sign Out</span>
+                <span>{t('menu_sign_out')}</span>
               </button>
             </div>
           )}

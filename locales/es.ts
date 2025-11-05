@@ -17,6 +17,7 @@ export const es: Translations = {
     mode_scene: 'Generación de Escenas',
     mode_product: 'Maquetas de Productos',
     mode_video: 'Video',
+    mode_background_remover: 'Quitar Fondo',
 
     // Spinner
     spinner_title: 'Procesando tu solicitud...',
@@ -52,6 +53,10 @@ export const es: Translations = {
     video_removed_success: '¡Video eliminado exitosamente!',
     video_remove_error: 'Error al eliminar el video. Por favor, inténtalo de nuevo.',
     video_download_error: 'Error al descargar el video. Por favor, inténtalo de nuevo.',
+
+    // Background Remover
+    background_remover_title: 'Eliminador de Fondo',
+    background_remover_description: 'Sube una imagen para eliminar su fondo. La herramienta se mostrará en el lado derecho.',
     grid_video_placeholder_title: 'Tu video aparecerá aquí',
     grid_video_placeholder_description: 'Sube una imagen y describe tu video para comenzar',
     video_prompt_suggestion_base: 'Sugiere ideas creativas de animación de video para esta imagen',
@@ -189,6 +194,8 @@ export const es: Translations = {
     
     // App Header
     nav_create_new: 'Crear Nuevo',
+    nav_integrations: 'Integraciones',
+    nav_help: 'Ayuda',
     upgrade_button: 'Actualizar',
 
     // Dashboard / Account Page
@@ -385,6 +392,10 @@ export const es: Translations = {
     profile_current_plan: 'Plan Actual',
     profile_manage_subscription: 'Gestionar Suscripción',
     profile_sign_out: 'Cerrar Sesión',
+    
+    // Menu
+    menu_sign_out: 'Cerrar Sesión',
+    
     profile_avatar_upload_success: '¡Avatar actualizado exitosamente!',
     profile_avatar_upload_error: 'No se pudo subir el avatar. Por favor, inténtalo de nuevo.',
     profile_invalid_file_type: 'Tipo de archivo inválido. Por favor, sube una imagen JPEG, PNG, WebP o GIF.',
@@ -437,4 +448,229 @@ export const es: Translations = {
     subscription_try_again: 'Intentar de nuevo',
     subscription_low_quota_warning: 'Te estás quedando sin generaciones. Considera actualizar tu plan para continuar creando.',
     subscription_no_quota_warning: 'Has usado todas tus generaciones de este mes. Actualiza para continuar o espera hasta el {date}.',
+    
+    // Help Center
+    help_center_title: 'Centro de Ayuda',
+    help_center_subtitle: '¿Tienes una pregunta? Encuentra tu respuesta aquí.',
+    help_center_search_placeholder: 'Buscar preguntas...',
+    help_center_contact_title: '¿No encuentras lo que buscas?',
+    help_center_contact_description: 'Nuestro equipo de soporte siempre está listo para ayudar. Contáctanos para cualquier pregunta que tengas.',
+    help_center_contact_button: 'Contactar Soporte',
+    help_center_no_results: 'No se encontraron resultados para "{query}". Prueba con diferentes palabras clave o navega por categorías.',
+    
+    // FAQ Categories
+    faq_category_all: 'Todo',
+    faq_category_getting_started: 'Primeros Pasos',
+    faq_category_billing: 'Facturación',
+    faq_category_ai_features: 'Características de IA',
+    faq_category_troubleshooting: 'Solución de Problemas',
+    faq_category_privacy: 'Privacidad',
+    
+    // FAQ Items - Getting Started
+    faq_gs_1_question: '¿Qué es MockupSuite?',
+    faq_gs_1_answer: 'MockupSuite es un generador de maquetas impulsado por IA que te permite subir tus imágenes de productos y diseños para crear fotos y maquetas profesionales de alta calidad automáticamente. Es perfecto para comercio electrónico, marketing y presentaciones de diseño.',
+    
+    faq_gs_2_question: '¿Cómo empiezo con MockupSuite?',
+    faq_gs_2_answer: '¡Empezar es fácil! Simplemente regístrate para obtener una cuenta gratuita, sube tu foto de producto o diseño, describe la escena que deseas o selecciona una plantilla de producto, y haz clic en generar. Tu maqueta profesional estará lista en segundos.',
+    
+    faq_gs_3_question: '¿Qué tipos de maquetas puedo crear?',
+    faq_gs_3_answer: 'Puedes crear dos tipos de maquetas: Generación de Escenas (transforma fotos de productos en imágenes de calidad de estudio con fondos personalizados) y Maquetas de Productos (aplica diseños a plantillas como ropa, artículos para el hogar, materiales impresos y productos tecnológicos).',
+    
+    faq_gs_4_question: '¿Necesito experiencia en diseño para usar MockupSuite?',
+    faq_gs_4_answer: '¡No se requiere experiencia en diseño! MockupSuite está diseñado para ser fácil de usar para todos. Simplemente sube tu imagen, describe lo que quieres y nuestra IA se encarga del resto. La interfaz es intuitiva y te guía en cada paso.',
+    
+    faq_gs_5_question: '¿Puedo usar MockupSuite en dispositivos móviles?',
+    faq_gs_5_answer: '¡Sí! MockupSuite es totalmente responsive y funciona perfectamente en teléfonos móviles, tabletas y computadoras de escritorio. Puedes crear maquetas profesionales desde cualquier dispositivo con conexión a internet.',
+    
+    // FAQ Items - Billing
+    faq_billing_1_question: '¿Qué planes de suscripción ofrecen?',
+    faq_billing_1_answer: 'Ofrecemos cuatro planes: Gratis (5 maquetas/mes), Inicial (50 maquetas/mes por 299 TRY), Pro (200 maquetas/mes por 649 TRY) y Empresarial (700 maquetas/mes por 1,199 TRY). Todos los planes de pago incluyen exportaciones de alta resolución y sin marcas de agua.',
+    
+    faq_billing_2_question: '¿Puedo cancelar mi suscripción en cualquier momento?',
+    faq_billing_2_answer: 'Sí, puedes cancelar tu suscripción en cualquier momento desde la configuración de tu cuenta. Tu plan permanecerá activo hasta el final del ciclo de facturación actual y no se te cobrará nuevamente.',
+    
+    faq_billing_3_question: '¿Qué sucede cuando se agota mi cuota mensual?',
+    faq_billing_3_answer: 'Cuando tu cuota mensual se agota, puedes actualizar a un plan superior o comprar paquetes de créditos. Los créditos nunca expiran y se pueden usar en cualquier momento cuando tu cuota se agote.',
+    
+    faq_billing_4_question: '¿Ofrecen reembolsos?',
+    faq_billing_4_answer: 'Ofrecemos una garantía de devolución de dinero de 14 días para suscriptores primerizos. Si no estás satisfecho con el servicio, contacta a nuestro equipo de soporte dentro de los 14 días de tu compra inicial para obtener un reembolso completo.',
+    
+    faq_billing_5_question: '¿Qué métodos de pago aceptan?',
+    faq_billing_5_answer: 'Aceptamos todas las principales tarjetas de crédito (Visa, Mastercard, American Express) y tarjetas de débito a través de nuestro procesador de pagos seguro İyzico. Todas las transacciones están encriptadas y son seguras.',
+    
+    faq_billing_6_question: '¿Cómo funciona el sistema de créditos?',
+    faq_billing_6_answer: 'Los créditos son unidades de generación adicionales que puedes comprar cuando tu cuota mensual se agota. A diferencia de las cuotas mensuales, los créditos nunca expiran y permanecen en tu cuenta hasta que se usen. Un crédito equivale a una generación de maqueta.',
+    
+    // FAQ Items - AI Features
+    faq_ai_1_question: '¿Qué tecnología de IA impulsa MockupSuite?',
+    faq_ai_1_answer: 'MockupSuite utiliza el modelo de IA Gemini 2.5 Flash de Google para la generación de imágenes. Esta IA avanzada crea maquetas fotorrealistas con iluminación, sombras y perspectiva perfectas.',
+    
+    faq_ai_2_question: '¿Cuánto tiempo tarda en generarse una maqueta?',
+    faq_ai_2_answer: 'La mayoría de las maquetas se generan en 10-30 segundos. Los suscriptores de los planes Pro y Empresarial obtienen procesamiento prioritario para tiempos de generación aún más rápidos.',
+    
+    faq_ai_3_question: '¿Puedo personalizar las maquetas generadas?',
+    faq_ai_3_answer: '¡Sí! Puedes personalizar las maquetas proporcionando descripciones detalladas de escenas, seleccionando diferentes plantillas de productos, eligiendo colores y aplicando preajustes de estilo. Cuanto más específica sea tu descripción, mejores serán los resultados.',
+    
+    faq_ai_4_question: '¿Qué formatos de archivo son compatibles para las cargas?',
+    faq_ai_4_answer: 'Admitimos formatos JPEG, PNG, WEBP y GIF. Para obtener mejores resultados, recomendamos subir imágenes de alta resolución con un fondo limpio. El tamaño máximo de archivo es de 10MB.',
+    
+    faq_ai_5_question: '¿Puedo generar múltiples maquetas a la vez?',
+    faq_ai_5_answer: '¡Sí! Puedes subir múltiples imágenes de productos y generar maquetas para todas ellas en un solo lote. Cada imagen se procesará individualmente y verás los resultados a medida que se completen.',
+    
+    faq_ai_6_question: '¿Qué resolución tienen las maquetas generadas?',
+    faq_ai_6_answer: 'Los usuarios del plan gratuito reciben maquetas de resolución estándar con marcas de agua. Los suscriptores de planes de pago obtienen exportaciones de alta resolución de hasta calidad 4K sin marcas de agua, perfectas para uso profesional.',
+    
+    // FAQ Items - Troubleshooting
+    faq_trouble_1_question: '¿Por qué falla la generación de mi maqueta?',
+    faq_trouble_1_answer: 'Los fallos de generación pueden ocurrir por varias razones: mala calidad de imagen, formato de archivo no compatible, problemas de red o agotamiento de cuota. Verifica tu formato de archivo, asegúrate de tener cuota restante e intenta nuevamente con una conexión a internet estable.',
+    
+    faq_trouble_2_question: 'La maqueta generada no coincide con mi descripción. ¿Qué debo hacer?',
+    faq_trouble_2_answer: 'Intenta ser más específico en tu descripción. Incluye detalles sobre iluminación, fondo, perspectiva y estilo. También puedes usar nuestras plantillas de prompts o la función de sugerencias para inspirarte.',
+    
+    faq_trouble_3_question: '¿Cómo mejoro la calidad de las maquetas generadas?',
+    faq_trouble_3_answer: 'Sube imágenes fuente de alta resolución, proporciona descripciones detalladas y específicas, usa los preajustes de estilo y considera actualizar a los planes Pro o Empresarial para resolución máxima (hasta 4K).',
+    
+    faq_trouble_4_question: 'Mis imágenes no se cargan en la galería. ¿Qué debo hacer?',
+    faq_trouble_4_answer: 'Esto suele ser un problema temporal. Intenta actualizar la página, limpiar la caché de tu navegador o verificar tu conexión a internet. Si el problema persiste, contacta a nuestro equipo de soporte.',
+    
+    faq_trouble_5_question: '¿Puedo regenerar una maqueta si no estoy satisfecho?',
+    faq_trouble_5_answer: '¡Sí! Puedes regenerar maquetas tantas veces como quieras (dentro de tus límites de cuota). Cada generación usa una unidad de cuota o crédito. Intenta ajustar tu descripción o configuración para obtener resultados diferentes.',
+    
+    faq_trouble_6_question: '¿Por qué la IA a veces agrega elementos inesperados?',
+    faq_trouble_6_answer: 'La generación de IA es creativa por naturaleza y puede interpretar los prompts de manera diferente. Para obtener resultados más predecibles, sé muy específico en tus descripciones y usa prompts negativos para excluir elementos no deseados.',
+    
+    // FAQ Items - Privacy
+    faq_privacy_1_question: '¿Cómo se protegen mis datos y privacidad?',
+    faq_privacy_1_answer: 'Nos tomamos muy en serio la privacidad de los datos. Todas las imágenes cargadas y el contenido generado se cifran y almacenan de forma segura usando Supabase. No usamos tus datos para ningún propósito que no sea proporcionarte el servicio.',
+    
+    faq_privacy_2_question: '¿Quién es el propietario de las maquetas generadas?',
+    faq_privacy_2_answer: 'Conservas la propiedad completa y los derechos comerciales de todas las maquetas que generas usando MockupSuite. Puedes usarlas para cualquier propósito, incluidos proyectos comerciales, sin atribución.',
+    
+    faq_privacy_3_question: '¿Comparten mis imágenes con terceros?',
+    faq_privacy_3_answer: 'No, nunca compartimos tus imágenes con terceros. Tus cargas y maquetas generadas son privadas y solo accesibles para ti a través de tu cuenta.',
+    
+    faq_privacy_4_question: '¿Puedo eliminar mis datos?',
+    faq_privacy_4_answer: 'Sí, puedes eliminar maquetas individuales de tu galería en cualquier momento. Si deseas eliminar toda tu cuenta y todos los datos asociados, contacta a nuestro equipo de soporte y procesaremos tu solicitud dentro de 30 días.',
+    
+    faq_privacy_5_question: '¿Es segura mi información de pago?',
+    faq_privacy_5_answer: 'Absolutamente. Usamos İyzico, un procesador de pagos compatible con PCI-DSS. Nunca almacenamos tu información de tarjeta de crédito en nuestros servidores. Todos los datos de pago están cifrados y manejados de forma segura por nuestro socio de pagos.',
+    
+    faq_privacy_6_question: '¿Usan mis imágenes para entrenar modelos de IA?',
+    faq_privacy_6_answer: 'No, no usamos tus imágenes cargadas o maquetas generadas para entrenar modelos de IA. Tu contenido permanece privado y solo se usa para proporcionar el servicio que solicitaste.',
+    
+    // Landing Page
+    landing_nav_features: 'Características',
+    landing_nav_pricing: 'Precios',
+    landing_nav_faq: 'Preguntas Frecuentes',
+    landing_nav_contact: 'Contacto',
+    landing_get_started_free: 'Comenzar Gratis',
+    landing_hero_title: 'Crea Impresionantes Mockups de Productos en Segundos con IA.',
+    landing_hero_subtitle: 'Transforma tus fotos de productos en tomas de estudio profesionales y genera mockups realistas al instante. No se requiere estudio.',
+    landing_hero_generate_button: 'Generar Mockup',
+    landing_hero_examples_button: 'Ver Ejemplos',
+    landing_how_it_works_title: 'Cómo Funciona',
+    landing_step_1_title: '1. Sube Tu Imagen',
+    landing_step_1_description: 'Comienza con una foto simple de tu producto o tu archivo de diseño único.',
+    landing_step_2_title: '2. Deja que la IA Haga su Magia',
+    landing_step_2_description: 'Nuestra IA analiza tu imagen y genera mockups realistas de alta calidad.',
+    landing_step_3_title: '3. Descarga Tu Mockup',
+    landing_step_3_description: 'Obtén tus fotos de calidad de estudio listas para tu tienda o redes sociales.',
+    landing_features_title: 'Eleva las Visuales de Tu Producto',
+    landing_features_subtitle: 'Descubre las potentes características que hacen que la creación de mockups sea fácil y profesional.',
+    landing_feature_1_title: 'Fotos de Calidad de Estudio',
+    landing_feature_1_description: 'Genera imágenes fotorrealistas que parecen tomadas en un estudio profesional.',
+    landing_feature_2_title: 'Mockups Instantáneos',
+    landing_feature_2_description: 'Coloca instantáneamente tus diseños en una variedad de productos, desde ropa hasta impresión.',
+    landing_feature_3_title: 'Iluminación y Sombras Perfectas',
+    landing_feature_3_description: 'Nuestra IA ajusta automáticamente la iluminación y las sombras para un resultado perfectamente realista.',
+    landing_feature_4_title: 'Fondos Infinitos',
+    landing_feature_4_description: 'Elige de una vasta biblioteca de fondos o genera uno personalizado para que coincida con tu marca.',
+    landing_cta_title: '¿Listo para Elevar las Visuales de Tu Producto?',
+    landing_cta_subtitle: 'Únete a miles de creadores y empresas que transforman sus visuales de productos con IA. Comienza a crear mockups profesionales hoy—completamente gratis.',
+    landing_cta_button: 'Comenzar Ahora',
+    landing_footer_copyright: '© 2025 MockupSuite. Todos los derechos reservados.',
+    landing_footer_about: 'Sobre Nosotros',
+    landing_footer_contact: 'Contacto',
+    landing_footer_terms: 'Términos de Servicio',
+    landing_footer_privacy: 'Política de Privacidad',
+    landing_faq_more_questions: '¿Tienes Más Preguntas?',
+    landing_faq_view_all: 'Ver Todas las Preguntas Frecuentes',
+    landing_back_to_home: 'Volver al Inicio',
+    landing_sign_in: 'Iniciar Sesión',
+    
+    // Integrations Page
+    integrations_page_title: 'Integraciones',
+    integrations_page_subtitle: 'Conecta MockupSuite con tus herramientas y plataformas favoritas',
+    integrations_search_placeholder: 'Buscar integraciones...',
+    integrations_category_all: 'Todo',
+    integrations_category_design_tools: 'Herramientas de Diseño',
+    integrations_category_ecommerce: 'Comercio Electrónico',
+    integrations_category_marketing: 'Marketing',
+    integrations_category_storage: 'Almacenamiento en la Nube',
+    integrations_coming_soon_title: 'Próximamente',
+    integrations_no_results: 'No se encontraron integraciones que coincidan con "{query}"',
+    integrations_loading: 'Cargando integraciones...',
+    integrations_error_loading: 'Error al cargar integraciones. Por favor, inténtalo de nuevo.',
+    
+    // Integration Card
+    integration_status_connected: 'Conectado',
+    integration_status_coming_soon: 'Próximamente',
+    integration_connect_button: 'Conectar',
+    integration_disconnect_button: 'Desconectar',
+    integration_sync_button: 'Sincronizar',
+    integration_browse_button: 'Explorar Archivos',
+    integration_save_button: 'Guardar en la Nube',
+    integration_sync_products_button: 'Sincronizar Productos',
+    
+    // Connection Modal
+    connection_modal_title: 'Conectar a {platform}',
+    connection_modal_connecting: 'Conectando a {platform}...',
+    connection_modal_instructions: 'Haz clic en el botón de abajo para autorizar a MockupSuite a acceder a tu cuenta de {platform}.',
+    connection_modal_authorize_button: 'Autorizar',
+    connection_modal_cancel_button: 'Cancelar',
+    connection_modal_disconnect_title: '¿Desconectar de {platform}?',
+    connection_modal_disconnect_message: '¿Estás seguro de que quieres desconectarte de {platform}? Perderás el acceso a los datos sincronizados.',
+    connection_modal_disconnect_confirm: 'Sí, Desconectar',
+    connection_modal_disconnect_cancel: 'Cancelar',
+    
+    // Integration Success Messages
+    integration_connected_success: '¡Conectado exitosamente a {platform}!',
+    integration_disconnected_success: 'Desconectado exitosamente de {platform}',
+    integration_sync_success: 'Sincronizado exitosamente con {platform}',
+    integration_products_imported: '{count} productos importados de {platform}',
+    integrations_products_imported: '{count} productos importados',
+    integration_mockup_published: 'Mockup publicado en {platform}',
+    integrations_mockups_published: '{count} mockups publicados',
+    integration_files_saved: '{count} archivos guardados en {platform}',
+    integrations_files_uploaded: '{count} archivos subidos',
+    integration_design_imported: 'Diseño importado de {platform}',
+    
+    // Integration Error Messages
+    integration_error_connection_failed: 'Error al conectar con {platform}. Por favor, inténtalo de nuevo.',
+    integration_error_oauth_failed: 'Autorización fallida. Por favor, verifica tus permisos e inténtalo de nuevo.',
+    integration_error_token_expired: 'Tu conexión a {platform} ha expirado. Por favor, reconecta.',
+    integration_error_api_error: 'Ocurrió un error al comunicarse con {platform}.',
+    integration_error_sync_failed: 'Error al sincronizar datos con {platform}. Por favor, inténtalo más tarde.',
+    integration_error_invalid_credentials: 'Credenciales inválidas para {platform}. Por favor, reconecta.',
+    integration_error_rate_limit: 'Demasiadas solicitudes a {platform}. Por favor, espera e inténtalo de nuevo.',
+    integration_error_network: 'Error de red. Por favor, verifica tu conexión e inténtalo de nuevo.',
+    integration_error_disconnection_failed: 'Error al desconectar de {platform}. Por favor, inténtalo de nuevo.',
+    integration_error_no_files_selected: 'No se seleccionaron archivos. Por favor, selecciona archivos para guardar.',
+    integration_error_upload_failed: 'Error al subir archivos a {platform}. Por favor, inténtalo de nuevo.',
+    
+    // OAuth Callback Messages
+    integration_oauth_processing: 'Procesando autorización...',
+    integration_oauth_error: 'Error al completar la autorización',
+    integration_oauth_invalid_callback: 'Parámetros de callback OAuth inválidos',
+    integration_oauth_success_title: '¡Conexión Exitosa!',
+    integration_oauth_error_title: 'Autorización Fallida',
+    integration_oauth_redirecting: 'Redirigiendo...',
+    integration_oauth_closing: 'Esta ventana se cerrará automáticamente...',
+    integration_error_no_folder_selected: 'Por favor, seleccione primero una carpeta de Google Drive desde la página de Integraciones.',
+    integration_select_folder_button: 'Seleccionar Carpeta',
+    integration_select_folder_title: 'Seleccionar Carpeta de Google Drive',
+    integration_root_folder: 'Carpeta Raíz (Mi unidad)',
+    integration_no_folders: 'No se encontraron carpetas. Los archivos se subirán a la raíz.',
+    integration_select_folder_confirm: 'Seleccionar Carpeta',
+    integration_folder_selected: 'Carpeta seleccionada: {folder}',
 };

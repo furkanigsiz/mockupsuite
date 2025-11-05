@@ -17,5 +17,7 @@ export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKe
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
+    // Prevent automatic page reload on auth state change
+    flowType: 'pkce',
   },
 });

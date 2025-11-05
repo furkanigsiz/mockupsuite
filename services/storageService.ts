@@ -271,27 +271,24 @@ export async function uploadBase64ImageWithThumbnail(
   fileName: string,
   folder: StorageFolder
 ): Promise<{ imagePath: string; thumbnailPath: string }> {
-  // Upload the full-size image first
-  const imagePath = await uploadBase64Image(userId, base64, fileName, folder);
-
   try {
-    // Generate thumbnail
+    // Generate thumbnail and upload both in parallel for better performance
     const { generateThumbnail } = await import('../utils/imageUtils');
     const thumbnailBase64 = await generateThumbnail(base64);
     
-    // Upload thumbnail with _thumb suffix
     const thumbnailFileName = fileName.replace(/(\.[^.]+)$/, '_thumb$1');
-    const thumbnailPath = await uploadBase64Image(
-      userId,
-      thumbnailBase64,
-      thumbnailFileName,
-      folder
-    );
+    
+    // Upload both images in parallel
+    const [imagePath, thumbnailPath] = await Promise.all([
+      uploadBase64Image(userId, base64, fileName, folder),
+      uploadBase64Image(userId, thumbnailBase64, thumbnailFileName, folder)
+    ]);
 
     return { imagePath, thumbnailPath };
   } catch (error) {
-    // If thumbnail generation fails, return only the main image path
-    console.error('Failed to generate thumbnail:', error);
+    // If thumbnail generation fails, upload only the main image
+    console.error('Failed to generate thumbnail, uploading main image only:', error);
+    const imagePath = await uploadBase64Image(userId, base64, fileName, folder);
     return { imagePath, thumbnailPath: imagePath };
   }
 }

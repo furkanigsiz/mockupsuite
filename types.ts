@@ -31,7 +31,7 @@ export interface Project {
   suggestedPrompts: string[];
 }
 
-export type AppMode = 'scene' | 'product' | 'video';
+export type AppMode = 'scene' | 'product' | 'video' | 'background-remover';
 
 export type ProductCategory = 'Apparel' | 'Home Goods' | 'Print' | 'Tech';
 
@@ -328,3 +328,181 @@ export const CREDIT_PACKAGES: CreditPackage[] = [
     pricePerImage: 6.25,
   },
 ];
+
+// FAQ/Help Center Types
+
+export type FAQCategory = 
+  | 'getting-started'
+  | 'billing'
+  | 'ai-features'
+  | 'troubleshooting'
+  | 'privacy';
+
+export interface FAQItem {
+  id: string;
+  category: FAQCategory;
+  question: string;
+  answer: string;
+  keywords: string[];
+}
+
+export interface HelpCenterPageProps {
+  initialCategory?: FAQCategory;
+  initialQuestionId?: string;
+  onContactSupport?: () => void;
+}
+
+export interface SearchBarProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}
+
+export interface CategoryFilterProps {
+  categories: FAQCategory[];
+  selectedCategory: FAQCategory | 'all';
+  onCategorySelect: (category: FAQCategory | 'all') => void;
+  faqCounts: Record<FAQCategory, number>;
+}
+
+export interface FAQAccordionProps {
+  faqs: FAQItem[];
+  expandedItems: Set<string>;
+  onToggle: (id: string) => void;
+  searchQuery: string;
+}
+
+export interface ContactSupportCTAProps {
+  onContactClick?: () => void;
+}
+
+// Integration System Types
+
+export type IntegrationCategory = 'design-tools' | 'ecommerce' | 'marketing' | 'storage';
+export type IntegrationStatus = 'active' | 'coming_soon';
+
+export interface Integration {
+  id: string;
+  name: string;
+  description: string;
+  category: IntegrationCategory;
+  logoUrl: string;
+  status: IntegrationStatus;
+  oauthConfig?: Record<string, any>;
+  createdAt?: string;
+  updatedAt?: string;
+  isConnected?: boolean;
+}
+
+export interface UserIntegration {
+  id: string;
+  userId: string;
+  integrationId: string;
+  accessToken: string;
+  refreshToken?: string;
+  tokenExpiresAt?: string;
+  settings?: Record<string, any>;
+  connectedAt: string;
+  lastSyncedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export enum IntegrationErrorType {
+  CONNECTION_FAILED = 'CONNECTION_FAILED',
+  OAUTH_ERROR = 'OAUTH_ERROR',
+  TOKEN_EXPIRED = 'TOKEN_EXPIRED',
+  API_ERROR = 'API_ERROR',
+  SYNC_FAILED = 'SYNC_FAILED',
+  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
+  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
+  NETWORK_ERROR = 'NETWORK_ERROR',
+}
+
+export interface IntegrationError {
+  type: IntegrationErrorType;
+  message: string;
+  userMessage: string;
+  retryable: boolean;
+  platform?: string;
+}
+
+// Shopify Integration Types
+
+export interface ShopifyProduct {
+  id: string;
+  title: string;
+  body_html: string;
+  vendor: string;
+  product_type: string;
+  handle: string;
+  images: ShopifyImage[];
+  variants: ShopifyVariant[];
+}
+
+export interface ShopifyImage {
+  id: string;
+  product_id: string;
+  position: number;
+  src: string;
+  width: number;
+  height: number;
+  alt?: string;
+}
+
+export interface ShopifyVariant {
+  id: string;
+  product_id: string;
+  title: string;
+  price: string;
+  sku: string;
+  inventory_quantity: number;
+}
+
+export interface ShopifyImportResult {
+  success: boolean;
+  productsImported: number;
+  projects: Project[];
+}
+
+export interface ShopifyPublishResult {
+  success: boolean;
+  productUrl: string;
+  imagesAdded: number;
+}
+
+// Figma Integration Types
+
+export interface FigmaFile {
+  key: string;
+  name: string;
+  thumbnail_url: string;
+  last_modified: string;
+}
+
+export interface FigmaFilesResult {
+  success: boolean;
+  files: FigmaFile[];
+}
+
+export interface FigmaImportResult {
+  success: boolean;
+  uploadedImage: UploadedImage;
+}
+
+// Stored Shopify Product (from database)
+export interface StoredShopifyProduct {
+  id: string;
+  user_id: string;
+  shopify_product_id: string;
+  title: string;
+  description: string;
+  vendor: string;
+  product_type: string;
+  handle: string;
+  images: ShopifyImage[];
+  variants: ShopifyVariant[];
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}

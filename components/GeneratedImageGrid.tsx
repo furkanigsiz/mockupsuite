@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DownloadIcon from './icons/DownloadIcon';
 import Spinner from './Spinner';
 import { useTranslations } from '../hooks/useTranslations';
@@ -6,6 +6,8 @@ import StarIcon from './icons/StarIcon';
 import { BatchResult } from '../types';
 import SceneIcon from './icons/SceneIcon';
 import { downloadImage } from '../utils/fileUtils';
+import CopyIcon from './icons/CopyIcon';
+import { copyImageToClipboard } from '../utils/imageProcessing';
 
 interface GeneratedImageGridProps {
   results: BatchResult[];
@@ -21,6 +23,19 @@ interface GeneratedImageGridProps {
 
 const GeneratedImageGrid: React.FC<GeneratedImageGridProps> = ({ results, isLoading, error, onImageClick, savedImages, onSaveImage, progressText, onUseInScene, showUseInSceneButton }) => {
   const { t } = useTranslations();
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
+
+  const handleCopyImage = async (img: string, resultIndex: number, index: number) => {
+    try {
+      await copyImageToClipboard(img);
+      const key = `${resultIndex}-${index}`;
+      setCopiedIndex(key);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy image:', error);
+      alert('Failed to copy image to clipboard');
+    }
+  };
 
   const renderContent = () => {
     if (isLoading) {
@@ -57,14 +72,30 @@ const GeneratedImageGrid: React.FC<GeneratedImageGridProps> = ({ results, isLoad
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {result.generated.map((img, index) => {
                     const isSaved = savedImages.includes(img);
+                    const copyKey = `${resultIndex}-${index}`;
+                    const isCopied = copiedIndex === copyKey;
                     return (
                     <div 
-                        key={`${resultIndex}-${index}`} 
+                        key={copyKey} 
                         className="group relative aspect-square overflow-hidden rounded-lg shadow-lg bg-gray-800 cursor-pointer"
                         onClick={() => onImageClick(img)}
                     >
                         <img src={`data:image/png;base64,${img}`} alt={`Generated Mockup ${index + 1} for ${result.source.name}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center gap-2">
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center gap-2 flex-wrap p-2">
+                        <button
+                            onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyImage(img, resultIndex, index);
+                            }}
+                            className={`flex items-center gap-2 backdrop-blur-sm font-semibold py-2 px-4 rounded-full opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-100 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+                              isCopied 
+                                ? 'bg-green-600/80 text-white' 
+                                : 'bg-gray-700/80 text-white hover:bg-gray-600/80'
+                            }`}
+                            title={isCopied ? 'Copied!' : 'Copy to clipboard'}
+                        >
+                            <CopyIcon className="h-5 w-5" />
+                        </button>
                         <button
                             onClick={(e) => {
                             e.stopPropagation();

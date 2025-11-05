@@ -607,3 +607,93 @@ export async function getVideoQuotaInfo(userId: string): Promise<QuotaInfo> {
     resetDate: subscription.currentPeriodEnd,
   };
 }
+
+/**
+ * Check if a user can remove background
+ * Background removal costs 1 credit (same as image generation)
+ * Returns true if user has sufficient quota or credits available
+ */
+export async function canRemoveBackground(userId: string): Promise<boolean> {
+  try {
+    const subscription = await getCurrentPlan(userId);
+    if (!subscription) {
+      return false;
+    }
+
+    // Check if subscription is active
+    if (subscription.status !== 'active') {
+      return false;
+    }
+
+    // Check if subscription has expired
+    const now = new Date();
+    const periodEnd = new Date(subscription.currentPeriodEnd);
+    if (now > periodEnd) {
+      return false;
+    }
+
+    // Background removal costs 1 credit (same as image generation)
+    const BACKGROUND_REMOVAL_COST = 1;
+
+    // Check if user has remaining quota
+    if (subscription.remainingQuota >= BACKGROUND_REMOVAL_COST) {
+      return true;
+    }
+
+    // If no quota, check if user has credits (will be implemented in creditService)
+    // For now, return false if insufficient quota
+    return false;
+  } catch (error) {
+    console.error('Error checking if user can remove background:', error);
+    return false;
+  }
+}
+
+/**
+ * Decrement the user's quota for background removal
+ * Background removal costs 1 credit per operation
+ */
+export async function decrementBackgroundRemovalQuota(userId: string, count: number = 1): Promise<QuotaInfo> {
+  // Background removal costs 1 credit per operation
+  const BACKGROUND_REMOVAL_COST = 1;
+  const totalCost = BACKGROUND_REMOVAL_COST * count;
+
+  // Get current subscription
+  const subscription = await getCurrentPlan(userId);
+  if (!subscription) {
+    throw new Error('No subscription found');
+  }
+
+  // Check if user has enough quota
+  if (subscription.remainingQuota < totalCost) {
+    throw new Error('Insufficient quota for background removal');
+  }
+
+  // Decrement quota
+  const newQuota = subscription.remainingQuota - totalCost;
+  const { error } = await supabase
+    .from('subscriptions')
+    .update({
+      remaining_quota: newQuota,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+
+  if (error) {
+    throw new Error(`Failed to decrement background removal quota: ${error.message}`);
+  }
+
+  // Log the usage
+  await supabase.from('usage_logs').insert({
+    user_id: userId,
+    action: 'background_removed',
+    metadata: {
+      count,
+      creditsUsed: totalCost,
+      remainingQuota: newQuota,
+    },
+  });
+
+  // Return updated quota info
+  return getRemainingQuota(userId);
+}

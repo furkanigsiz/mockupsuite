@@ -14,6 +14,8 @@ import GalleryPage from './components/GalleryPage';
 import { StylePreset } from './components/StyleSelector';
 import GeneratorControls from './components/GeneratorControls';
 import GeneratedVideo from './components/GeneratedVideo';
+import BackgroundRemoverTab from './components/BackgroundRemoverTab';
+import ModeSwitcher from './components/ModeSwitcher';
 import { useAuth } from './components/AuthProvider';
 import * as databaseService from './services/databaseService';
 import * as offlineDataService from './services/offlineDataService';
@@ -35,6 +37,12 @@ import * as veo3Service from './services/veo3Service';
 import StaggeredMenu from './components/StaggeredMenu';
 import UnifiedHeader from './components/UnifiedHeader';
 import ProfilePage from './components/ProfilePage';
+import { HelpCenterPage } from './components/HelpCenterPage';
+import IntegrationsPage from './components/IntegrationsPage';
+import OAuthCallbackHandler from './components/OAuthCallbackHandler';
+import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
+import { TermsOfServicePage } from './components/TermsOfServicePage';
+import { ContactPage } from './components/ContactPage';
 
 const DEFAULT_BRAND_KIT: BrandKitType = {
   logo: null,
@@ -43,8 +51,8 @@ const DEFAULT_BRAND_KIT: BrandKitType = {
 };
 
 function App() {
-  const { t } = useTranslations();
   const { user, signOut } = useAuth();
+  const { t } = useTranslations();
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   const [brandKit, setBrandKit] = useState<BrandKitType>(DEFAULT_BRAND_KIT);
@@ -99,9 +107,69 @@ function App() {
   const urlParams = new URLSearchParams(window.location.search);
   const isAdminView = urlParams.get('admin') === 'true';
   
-  const [mainView, setMainView] = useState<'generator' | 'gallery' | 'admin' | 'profile'>(
-    isAdminView ? 'admin' : 'generator'
-  );
+  // Initialize mainView from localStorage or default to 'generator'
+  const getInitialView = (): 'generator' | 'gallery' | 'admin' | 'profile' | 'help' | 'integrations' | 'oauth-callback' | 'privacy-policy' | 'terms-of-service' | 'contact' => {
+    if (isAdminView) return 'admin';
+    
+    // Check if this is a static page route
+    if (window.location.pathname === '/privacy-policy') return 'privacy-policy';
+    if (window.location.pathname === '/terms-of-service') return 'terms-of-service';
+    if (window.location.pathname === '/contact') return 'contact';
+    
+    // Check if this is an OAuth callback route
+    const urlParams = new URLSearchParams(window.location.search);
+    const isOAuthCallback = (urlParams.has('success') || urlParams.has('error')) && urlParams.has('platform');
+    if (isOAuthCallback) return 'oauth-callback';
+    
+    try {
+      const savedView = localStorage.getItem('mockupsuite_current_view');
+      if (savedView && ['generator', 'gallery', 'admin', 'profile', 'help', 'integrations'].includes(savedView)) {
+        return savedView as 'generator' | 'gallery' | 'admin' | 'profile' | 'help' | 'integrations';
+      }
+    } catch (e) {
+      console.error('Failed to load saved view:', e);
+    }
+    
+    return 'generator';
+  };
+  
+  const [mainView, setMainView] = useState<'generator' | 'gallery' | 'admin' | 'profile' | 'help' | 'integrations' | 'oauth-callback' | 'privacy-policy' | 'terms-of-service' | 'contact'>(getInitialView());
+  
+  // Track the source view for context-aware help navigation
+  const [helpSourceView, setHelpSourceView] = useState<'generator' | 'gallery' | 'profile' | null>(null);
+  
+  // Save mainView to localStorage whenever it changes (except for static pages)
+  useEffect(() => {
+    const staticPages = ['oauth-callback', 'privacy-policy', 'terms-of-service', 'contact'];
+    if (!staticPages.includes(mainView)) {
+      try {
+        localStorage.setItem('mockupsuite_current_view', mainView);
+      } catch (e) {
+        console.error('Failed to save current view:', e);
+      }
+    }
+  }, [mainView]);
+  
+  // Helper function to navigate to help with context
+  const navigateToHelp = useCallback((sourceView?: 'generator' | 'gallery' | 'profile') => {
+    if (sourceView) {
+      setHelpSourceView(sourceView);
+    }
+    setMainView('help');
+  }, []);
+  
+  // Handler for OAuth callback completion
+  const handleOAuthCallbackComplete = useCallback((success: boolean, message: string) => {
+    // Clear URL parameters
+    window.history.replaceState({}, document.title, window.location.pathname);
+    
+    // Navigate to integrations page
+    setMainView('integrations');
+    
+    // Show toast notification
+    // Note: Toast notifications will be shown by the IntegrationsPage component
+    // when it detects the OAuth completion via postMessage or state
+  }, []);
   
   // Menu state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -235,9 +303,20 @@ function App() {
   }, [user]);
 
   // Load data from database on initial render (when user is authenticated)
+  // Use a ref to track if data has been loaded to prevent reloading on every user change
+  const dataLoadedRef = React.useRef(false);
+  const loadedUserIdRef = React.useRef<string | null>(null);
+  
   useEffect(() => {
     if (!user) {
       setIsLoadingData(false);
+      dataLoadedRef.current = false;
+      loadedUserIdRef.current = null;
+      return;
+    }
+
+    // Skip if data already loaded for this user
+    if (dataLoadedRef.current && loadedUserIdRef.current === user.id) {
       return;
     }
 
@@ -323,6 +402,10 @@ function App() {
         // Fetch prompt templates from database
         const fetchedTemplates = await databaseService.getPromptTemplates(user.id);
         setPromptTemplates(fetchedTemplates);
+        
+        // Mark data as loaded for this user
+        dataLoadedRef.current = true;
+        loadedUserIdRef.current = user.id;
       } catch (e) {
         console.error('Failed to load data from database:', e);
         setError(t('error_loading_data') as string || 'Failed to load data');
@@ -366,6 +449,29 @@ function App() {
       // Optionally show error to user
     }
   }, [currentProjectId, user]);
+
+  // Check for pending uploaded image when navigating to generator
+  useEffect(() => {
+    if (mainView === 'generator' && currentProject) {
+      try {
+        const pendingImageStr = localStorage.getItem('pendingUploadedImage');
+        if (pendingImageStr) {
+          const pendingImage = JSON.parse(pendingImageStr) as UploadedImage;
+          
+          // Add to current project's uploaded images
+          updateCurrentProject({
+            uploadedImages: [...currentProject.uploadedImages, pendingImage],
+          });
+          
+          // Clear the pending image
+          localStorage.removeItem('pendingUploadedImage');
+        }
+      } catch (error) {
+        console.error('Failed to load pending image:', error);
+        localStorage.removeItem('pendingUploadedImage');
+      }
+    }
+  }, [mainView, currentProject, updateCurrentProject]);
 
   const handleSceneGenerate = useCallback(async () => {
     if (!currentProject || currentProject.uploadedImages.length === 0 || !currentProject.prompt.trim()) {
@@ -792,20 +898,52 @@ function App() {
     if (!currentProject || !user) return;
     
     try {
-      // Upload image to storage (with offline support)
       const fileName = `mockup_${Date.now()}.png`;
-      const imagePath = await offlineDataService.saveMockup(
+      
+      // Generate temporary path for optimistic UI update
+      const tempPath = `temp/${user.id}/mockups/${fileName}`;
+      
+      // Optimistic update - show saved immediately
+      const newSavedImages = [...currentProject.savedImages, tempPath];
+      updateCurrentProject({ savedImages: newSavedImages });
+      
+      // Upload in background (don't await)
+      offlineDataService.saveMockup(
         currentProject.id,
         user.id,
         base64Image,
         fileName
-      );
-      
-      // Check if this path is already saved
-      if (currentProject.savedImages.includes(imagePath)) return;
-      
-      // Update local state with storage path
-      updateCurrentProject({ savedImages: [...currentProject.savedImages, imagePath] });
+      ).then((imagePath) => {
+        // Replace temp path with real path using setProjects to get latest state
+        setProjects(prevProjects => 
+          prevProjects.map(p => {
+            if (p.id === currentProject.id) {
+              return {
+                ...p,
+                savedImages: p.savedImages.map(path => 
+                  path === tempPath ? imagePath : path
+                )
+              };
+            }
+            return p;
+          })
+        );
+      }).catch((e) => {
+        console.error('Failed to save image:', e);
+        // Remove temp path on error using setProjects to get latest state
+        setProjects(prevProjects => 
+          prevProjects.map(p => {
+            if (p.id === currentProject.id) {
+              return {
+                ...p,
+                savedImages: p.savedImages.filter(path => path !== tempPath)
+              };
+            }
+            return p;
+          })
+        );
+        alert('Failed to save image. Please try again.');
+      });
     } catch (e) {
       console.error('Failed to save image:', e);
       alert('Failed to save image. Please try again.');
@@ -1093,6 +1231,22 @@ function App() {
   // Show landing page if user is not logged in
   // Show app content if user is logged in
   const renderAppContent = () => {
+    // Handle static pages (can be accessed without authentication)
+    if (mainView === 'privacy-policy') {
+      return <PrivacyPolicyPage />;
+    }
+    if (mainView === 'terms-of-service') {
+      return <TermsOfServicePage />;
+    }
+    if (mainView === 'contact') {
+      return <ContactPage />;
+    }
+    
+    // Handle OAuth callback route (can be accessed without full authentication)
+    if (mainView === 'oauth-callback') {
+      return <OAuthCallbackHandler onComplete={handleOAuthCallbackComplete} />;
+    }
+    
     // If user is not logged in, show landing page
     if (!user) {
       return <LandingPage onGetStarted={() => {}} />;
@@ -1149,10 +1303,22 @@ function App() {
                  onClick: () => setMainView('gallery')
                },
                {
+                 label: t('nav_integrations') || 'Integrations',
+                 ariaLabel: 'Navigate to integrations',
+                 link: '#',
+                 onClick: () => setMainView('integrations')
+               },
+               {
                  label: t('dashboard_nav_profile') || 'Profile',
                  ariaLabel: 'Navigate to profile',
                  link: '#',
                  onClick: () => setMainView('profile')
+               },
+               {
+                 label: t('nav_help') || 'Help',
+                 ariaLabel: 'Navigate to help center',
+                 link: '#',
+                 onClick: () => navigateToHelp()
                },
                {
                  label: t('dashboard_nav_settings') || 'Settings',
@@ -1185,6 +1351,16 @@ function App() {
            {mainView === 'gallery' && <GalleryPage projects={projects} setProjects={setProjects} onNavigate={setMainView} onImageClick={setSelectedImage} />}
            {mainView === 'admin' && <AdminDashboard />}
            {mainView === 'profile' && <ProfilePage onNavigateToGallery={() => setMainView('gallery')} onUpgrade={handleUpgrade} />}
+           {mainView === 'integrations' && <IntegrationsPage />}
+           {mainView === 'help' && (
+             <HelpCenterPage
+               initialCategory={
+                 helpSourceView === 'profile' ? 'billing' :
+                 helpSourceView === 'generator' ? 'ai-features' :
+                 undefined
+               }
+             />
+           )}
          </div>
 
         <ImageModal imageSrc={selectedImage} onClose={() => setSelectedImage(null)} />
@@ -1192,99 +1368,132 @@ function App() {
     );
   };
 
-  const renderGenerator = () => (
-     <main className="flex-1 justify-center py-5 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-7xl mx-auto">
+  const renderGenerator = () => {
+    // If background-remover mode, show only the BackgroundRemoverTab (full width)
+    if (mode === 'background-remover') {
+      return (
+        <main className="flex-1 justify-center py-5 px-4 sm:px-6 lg:px-8">
+          <div className="w-full max-w-7xl mx-auto">
             <div className="flex flex-wrap justify-between items-center gap-4 p-4">
-                <p className="text-neutral-dark dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">{t('create_mockup_title')}</p>
+              <p className="text-neutral-dark dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">
+                {t('background_remover_title')}
+              </p>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
-              {/* Left Column: Controls */}
-              <div className="flex flex-col gap-6">
-                <GeneratorControls
-                  mode={mode}
-                  setMode={setMode}
-                  projects={projects}
-                  setProjects={setProjects}
-                  currentProjectId={currentProjectId}
-                  setCurrentProjectId={setCurrentProjectId}
-                  currentProject={currentProject}
-                  updateCurrentProject={updateCurrentProject}
-                  promptTemplates={promptTemplates}
-                  setPromptTemplates={setPromptTemplates}
-                  handleSuggestPrompts={handleSuggestPrompts}
-                  isSuggesting={isSuggesting}
-                  handleSavePrompt={handleSavePrompt}
-                  selectedProduct={selectedProduct}
-                  setSelectedProduct={setSelectedProduct}
-                  designImage={designImage}
-                  setDesignImage={setDesignImage}
-                  productColor={productColor}
-                  setProductColor={setProductColor}
-                  productStyle={productStyle}
-                  setProductStyle={setProductStyle}
-                  stylePrompt={stylePrompt}
-                  setStylePrompt={setStylePrompt}
-                  brandKit={brandKit}
-                  setBrandKit={setBrandKit}
-                  isLoading={isLoading}
-                  handleSceneGenerate={handleSceneGenerate}
-                  handleProductGenerate={handleProductGenerate}
-                  videoSourceImage={videoSourceImage}
-                  onVideoSourceImageChange={setVideoSourceImage}
-                  videoPrompt={videoPrompt}
-                  onVideoPromptChange={setVideoPrompt}
-                  videoDuration={videoDuration}
-                  onVideoDurationChange={setVideoDuration}
-                  videoAspectRatio={videoAspectRatio}
-                  onVideoAspectRatioChange={setVideoAspectRatio}
-                  handleVideoGenerate={handleVideoGenerate}
-                  videoSuggestedPrompts={videoSuggestedPrompts}
-                  handleVideoSuggestPrompts={handleVideoSuggestPrompts}
-                  isVideoSuggesting={isVideoSuggesting}
-                />
+            <div className="mt-6">
+              <div className="flex flex-col gap-6 mb-6">
+                <ModeSwitcher currentMode={mode} onModeChange={setMode} />
               </div>
+              <BackgroundRemoverTab 
+                onUpgradeClick={() => {
+                  setUpgradeModalTrigger('quota_exhausted');
+                  setShowUpgradeModal(true);
+                }}
+                onQuotaRefresh={() => setQuotaRefreshTrigger(prev => prev + 1)}
+                projectId={currentProjectId || undefined}
+                onSaveToGallery={handleSaveImage}
+                onUseInScene={handleUseInScene}
+              />
+            </div>
+          </div>
+        </main>
+      );
+    }
 
-              {/* Right Column: Results */}
-              <div className="space-y-8">
-                {mode === 'video' ? (
-                  <GeneratedVideo
-                    result={currentVideoResult}
+    // Normal generator layout for other modes
+    return (
+      <main className="flex-1 justify-center py-5 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto">
+          <div className="flex flex-wrap justify-between items-center gap-4 p-4">
+            <p className="text-neutral-dark dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">{t('create_mockup_title')}</p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
+            {/* Left Column: Controls */}
+            <div className="flex flex-col gap-6">
+              <GeneratorControls
+                mode={mode}
+                setMode={setMode}
+                projects={projects}
+                setProjects={setProjects}
+                currentProjectId={currentProjectId}
+                setCurrentProjectId={setCurrentProjectId}
+                currentProject={currentProject}
+                updateCurrentProject={updateCurrentProject}
+                promptTemplates={promptTemplates}
+                setPromptTemplates={setPromptTemplates}
+                handleSuggestPrompts={handleSuggestPrompts}
+                isSuggesting={isSuggesting}
+                handleSavePrompt={handleSavePrompt}
+                selectedProduct={selectedProduct}
+                setSelectedProduct={setSelectedProduct}
+                designImage={designImage}
+                setDesignImage={setDesignImage}
+                productColor={productColor}
+                setProductColor={setProductColor}
+                productStyle={productStyle}
+                setProductStyle={setProductStyle}
+                stylePrompt={stylePrompt}
+                setStylePrompt={setStylePrompt}
+                brandKit={brandKit}
+                setBrandKit={setBrandKit}
+                isLoading={isLoading}
+                handleSceneGenerate={handleSceneGenerate}
+                handleProductGenerate={handleProductGenerate}
+                videoSourceImage={videoSourceImage}
+                onVideoSourceImageChange={setVideoSourceImage}
+                videoPrompt={videoPrompt}
+                onVideoPromptChange={setVideoPrompt}
+                videoDuration={videoDuration}
+                onVideoDurationChange={setVideoDuration}
+                videoAspectRatio={videoAspectRatio}
+                onVideoAspectRatioChange={setVideoAspectRatio}
+                handleVideoGenerate={handleVideoGenerate}
+                videoSuggestedPrompts={videoSuggestedPrompts}
+                handleVideoSuggestPrompts={handleVideoSuggestPrompts}
+                isVideoSuggesting={isVideoSuggesting}
+              />
+            </div>
+
+            {/* Right Column: Results */}
+            <div className="space-y-8">
+              {mode === 'video' ? (
+                <GeneratedVideo
+                  result={currentVideoResult}
+                  isLoading={isLoading}
+                  error={error}
+                  progressText={progressText}
+                  onSaveVideo={handleSaveVideo}
+                  onDownloadVideo={handleDownloadVideo}
+                  onRemoveVideo={handleRemoveVideo}
+                  isSaved={!!currentVideoId}
+                />
+              ) : (
+                <>
+                  <GeneratedImageGrid 
+                    results={currentResults}
                     isLoading={isLoading}
                     error={error}
+                    onImageClick={setSelectedImage}
+                    savedImages={currentProject.savedImages}
+                    onSaveImage={handleSaveImage}
                     progressText={progressText}
-                    onSaveVideo={handleSaveVideo}
-                    onDownloadVideo={handleDownloadVideo}
-                    onRemoveVideo={handleRemoveVideo}
-                    isSaved={!!currentVideoId}
+                    onUseInScene={handleUseInScene}
+                    showUseInSceneButton={mode === 'product'}
                   />
-                ) : (
-                  <>
-                    <GeneratedImageGrid 
-                      results={currentResults}
-                      isLoading={isLoading}
-                      error={error}
+                  {currentProject.savedImages.length > 0 && (
+                    <SavedImageGrid
+                      images={currentProject.savedImages}
+                      onRemoveImage={handleRemoveSavedImage}
                       onImageClick={setSelectedImage}
-                      savedImages={currentProject.savedImages}
-                      onSaveImage={handleSaveImage}
-                      progressText={progressText}
-                      onUseInScene={handleUseInScene}
-                      showUseInSceneButton={mode === 'product'}
                     />
-                    {currentProject.savedImages.length > 0 && (
-                      <SavedImageGrid
-                        images={currentProject.savedImages}
-                        onRemoveImage={handleRemoveSavedImage}
-                        onImageClick={setSelectedImage}
-                      />
-                    )}
-                  </>
-                )}
-              </div>
+                  )}
+                </>
+              )}
             </div>
+          </div>
         </div>
       </main>
-  );
+    );
+  };
 
   return (
     <>

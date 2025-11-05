@@ -17,6 +17,7 @@ export const tr: Translations = {
     mode_scene: 'Sahne Oluşturma',
     mode_product: 'Ürün Mockup\'ları',
     mode_video: 'Video',
+    mode_background_remover: 'Arkaplan Silici',
 
     // Spinner
     spinner_title: 'İsteğiniz işleniyor...',
@@ -52,6 +53,10 @@ export const tr: Translations = {
     video_removed_success: 'Video başarıyla kaldırıldı!',
     video_remove_error: 'Video kaldırılamadı. Lütfen tekrar deneyin.',
     video_download_error: 'Video indirilemedi. Lütfen tekrar deneyin.',
+
+    // Background Remover
+    background_remover_title: 'Arkaplan Silici',
+    background_remover_description: 'Arka planını kaldırmak için bir resim yükleyin. Araç sağ tarafta görüntülenecektir.',
     grid_video_placeholder_title: 'Videonuz burada görünecek',
     grid_video_placeholder_description: 'Başlamak için bir resim yükleyin ve videonuzu tanımlayın',
     video_prompt_suggestion_base: 'Bu görsel için yaratıcı video animasyon fikirleri önerin',
@@ -189,6 +194,8 @@ export const tr: Translations = {
     
     // App Header
     nav_create_new: 'Yeni Oluştur',
+    nav_integrations: 'Entegrasyonlar',
+    nav_help: 'Yardım',
     upgrade_button: 'Yükselt',
 
     // Dashboard / Account Page
@@ -385,6 +392,9 @@ export const tr: Translations = {
     profile_current_plan: 'Mevcut Plan',
     profile_manage_subscription: 'Aboneliği Yönet',
     profile_sign_out: 'Çıkış Yap',
+    
+    // Menu
+    menu_sign_out: 'Çıkış Yap',
     profile_avatar_upload_success: 'Avatar başarıyla güncellendi!',
     profile_avatar_upload_error: 'Avatar yüklenemedi. Lütfen tekrar deneyin.',
     profile_invalid_file_type: 'Geçersiz dosya türü. Lütfen JPEG, PNG, WebP veya GIF resmi yükleyin.',
@@ -437,4 +447,229 @@ export const tr: Translations = {
     subscription_try_again: 'Tekrar dene',
     subscription_low_quota_warning: 'Oluşturma kotanız azalıyor. Oluşturmaya devam etmek için planınızı yükseltmeyi düşünün.',
     subscription_no_quota_warning: 'Bu ay için tüm oluşturmalarınızı kullandınız. Devam etmek için yükseltin veya {date} tarihine kadar bekleyin.',
+    
+    // Help Center
+    help_center_title: 'Yardım Merkezi',
+    help_center_subtitle: 'Bir sorunuz mu var? Cevabını burada bulun.',
+    help_center_search_placeholder: 'Soru ara...',
+    help_center_contact_title: 'Aradığınızı bulamadınız mı?',
+    help_center_contact_description: 'Destek ekibimiz her zaman yardıma hazır. Sorularınız için bize ulaşın.',
+    help_center_contact_button: 'Destek ile İletişime Geç',
+    help_center_no_results: '"{query}" için sonuç bulunamadı. Farklı anahtar kelimeler deneyin veya kategorilere göz atın.',
+    
+    // FAQ Categories
+    faq_category_all: 'Tümü',
+    faq_category_getting_started: 'Başlarken',
+    faq_category_billing: 'Faturalandırma',
+    faq_category_ai_features: 'Yapay Zeka Özellikleri',
+    faq_category_troubleshooting: 'Sorun Giderme',
+    faq_category_privacy: 'Gizlilik',
+    
+    // FAQ Items - Getting Started
+    faq_gs_1_question: 'MockupSuite nedir?',
+    faq_gs_1_answer: 'MockupSuite, ürün görsellerinizi ve tasarımlarınızı yükleyerek otomatik olarak profesyonel, yüksek kaliteli fotoğraflar ve mockup\'lar oluşturmanıza olanak tanıyan yapay zeka destekli bir mockup oluşturucudur. E-ticaret, pazarlama ve tasarım sunumları için mükemmeldir.',
+    
+    faq_gs_2_question: 'MockupSuite\'i kullanmaya nasıl başlarım?',
+    faq_gs_2_answer: 'Başlamak çok kolay! Ücretsiz bir hesap oluşturun, ürün fotoğrafınızı veya tasarımınızı yükleyin, istediğiniz sahneyi tanımlayın veya bir ürün şablonu seçin ve oluştur\'a tıklayın. Profesyonel mockup\'ınız saniyeler içinde hazır olacak.',
+    
+    faq_gs_3_question: 'Ne tür mockup\'lar oluşturabilirim?',
+    faq_gs_3_answer: 'İki tür mockup oluşturabilirsiniz: Sahne Oluşturma (ürün fotoğraflarını özel arka planlarla stüdyo kalitesinde görsellere dönüştürme) ve Ürün Mockup\'ları (tasarımları giyim, ev eşyaları, baskı malzemeleri ve teknoloji ürünleri gibi şablonlara uygulama).',
+    
+    faq_gs_4_question: 'MockupSuite\'i kullanmak için tasarım deneyimine ihtiyacım var mı?',
+    faq_gs_4_answer: 'Tasarım deneyimi gerekmez! MockupSuite herkes için kullanıcı dostu olacak şekilde tasarlanmıştır. Sadece görselinizi yükleyin, ne istediğinizi tanımlayın ve yapay zekamız gerisini halleder. Arayüz sezgiseldir ve her adımda size rehberlik eder.',
+    
+    faq_gs_5_question: 'MockupSuite\'i mobil cihazlarda kullanabilir miyim?',
+    faq_gs_5_answer: 'Evet! MockupSuite tamamen duyarlıdır ve cep telefonları, tabletler ve masaüstü bilgisayarlarda sorunsuz çalışır. İnternet bağlantısı olan herhangi bir cihazdan profesyonel mockup\'lar oluşturabilirsiniz.',
+    
+    // FAQ Items - Billing
+    faq_billing_1_question: 'Hangi abonelik planlarını sunuyorsunuz?',
+    faq_billing_1_answer: 'Dört plan sunuyoruz: Ücretsiz (5 mockup/ay), Başlangıç (299 TRY karşılığında 50 mockup/ay), Pro (649 TRY karşılığında 200 mockup/ay) ve İşletme (1.199 TRY karşılığında 700 mockup/ay). Tüm ücretli planlar yüksek çözünürlüklü dışa aktarma ve filigransız içerik içerir.',
+    
+    faq_billing_2_question: 'Aboneliğimi istediğim zaman iptal edebilir miyim?',
+    faq_billing_2_answer: 'Evet, aboneliğinizi hesap ayarlarınızdan istediğiniz zaman iptal edebilirsiniz. Planınız mevcut fatura döneminin sonuna kadar aktif kalacak ve tekrar ücretlendirilmeyeceksiniz.',
+    
+    faq_billing_3_question: 'Aylık kotam bittiğinde ne olur?',
+    faq_billing_3_answer: 'Aylık kotanız tükendiğinde, daha yüksek bir plana yükseltebilir veya kredi paketleri satın alabilirsiniz. Kredilerin süresi dolmaz ve kotanız bittiğinde her zaman kullanılabilir.',
+    
+    faq_billing_4_question: 'Para iadesi sunuyor musunuz?',
+    faq_billing_4_answer: 'İlk kez abone olanlar için 14 günlük para iade garantisi sunuyoruz. Hizmetten memnun kalmazsanız, ilk satın alma işleminizden sonraki 14 gün içinde destek ekibimizle iletişime geçerek tam para iadesi alabilirsiniz.',
+    
+    faq_billing_5_question: 'Hangi ödeme yöntemlerini kabul ediyorsunuz?',
+    faq_billing_5_answer: 'Güvenli ödeme işlemcimiz İyzico aracılığıyla tüm büyük kredi kartlarını (Visa, Mastercard, American Express) ve banka kartlarını kabul ediyoruz. Tüm işlemler şifrelenmiş ve güvenlidir.',
+    
+    faq_billing_6_question: 'Kredi sistemi nasıl çalışır?',
+    faq_billing_6_answer: 'Krediler, aylık kotanız bittiğinde satın alabileceğiniz ek oluşturma birimleridir. Aylık kotalardan farklı olarak, kredilerin süresi dolmaz ve kullanılana kadar hesabınızda kalır. Bir kredi, bir mockup oluşturmaya eşittir.',
+    
+    // FAQ Items - AI Features
+    faq_ai_1_question: 'MockupSuite\'i hangi yapay zeka teknolojisi destekliyor?',
+    faq_ai_1_answer: 'MockupSuite, görsel oluşturma için Google\'ın Gemini 2.5 Flash yapay zeka modelini kullanır. Bu gelişmiş yapay zeka, mükemmel ışıklandırma, gölgeler ve perspektifle fotorealistik mockup\'lar oluşturur.',
+    
+    faq_ai_2_question: 'Bir mockup oluşturmak ne kadar sürer?',
+    faq_ai_2_answer: 'Çoğu mockup 10-30 saniye içinde oluşturulur. Pro ve İşletme planı aboneleri daha da hızlı oluşturma süreleri için öncelikli işleme alır.',
+    
+    faq_ai_3_question: 'Oluşturulan mockup\'ları özelleştirebilir miyim?',
+    faq_ai_3_answer: 'Evet! Detaylı sahne açıklamaları sağlayarak, farklı ürün şablonları seçerek, renkler seçerek ve stil önayarları uygulayarak mockup\'ları özelleştirebilirsiniz. Açıklamanız ne kadar spesifik olursa, sonuçlar o kadar iyi olur.',
+    
+    faq_ai_4_question: 'Yüklemeler için hangi dosya formatları destekleniyor?',
+    faq_ai_4_answer: 'JPEG, PNG, WEBP ve GIF formatlarını destekliyoruz. En iyi sonuçlar için, temiz arka planlı yüksek çözünürlüklü görseller yüklemenizi öneririz. Maksimum dosya boyutu 10MB\'dir.',
+    
+    faq_ai_5_question: 'Aynı anda birden fazla mockup oluşturabilir miyim?',
+    faq_ai_5_answer: 'Evet! Birden fazla ürün görseli yükleyebilir ve hepsi için tek bir toplu işlemde mockup\'lar oluşturabilirsiniz. Her görsel ayrı ayrı işlenecek ve tamamlandıkça sonuçları göreceksiniz.',
+    
+    faq_ai_6_question: 'Oluşturulan mockup\'ların çözünürlüğü nedir?',
+    faq_ai_6_answer: 'Ücretsiz plan kullanıcıları filigran içeren standart çözünürlüklü mockup\'lar alır. Ücretli plan aboneleri, profesyonel kullanım için mükemmel olan, filigransız 4K kaliteye kadar yüksek çözünürlüklü dışa aktarmalar alır.',
+    
+    // FAQ Items - Troubleshooting
+    faq_trouble_1_question: 'Mockup oluşturmam neden başarısız oluyor?',
+    faq_trouble_1_answer: 'Oluşturma hataları çeşitli nedenlerden kaynaklanabilir: düşük görsel kalitesi, desteklenmeyen dosya formatı, ağ sorunları veya kota tükenmesi. Dosya formatınızı kontrol edin, kalan kotanızın olduğundan emin olun ve kararlı bir internet bağlantısıyla tekrar deneyin.',
+    
+    faq_trouble_2_question: 'Oluşturulan mockup açıklamamla eşleşmiyor. Ne yapmalıyım?',
+    faq_trouble_2_answer: 'Açıklamanızda daha spesifik olmayı deneyin. Işıklandırma, arka plan, perspektif ve stil hakkında detaylar ekleyin. İlham almak için prompt şablonlarımızı veya öneri özelliğimizi de kullanabilirsiniz.',
+    
+    faq_trouble_3_question: 'Oluşturulan mockup\'ların kalitesini nasıl artırabilirim?',
+    faq_trouble_3_answer: 'Yüksek çözünürlüklü kaynak görseller yükleyin, detaylı ve spesifik açıklamalar sağlayın, stil önayarlarını kullanın ve maksimum çözünürlük (4K\'ya kadar) için Pro veya İşletme planlarına yükseltmeyi düşünün.',
+    
+    faq_trouble_4_question: 'Görsellerim galeride yüklenmiyor. Ne yapmalıyım?',
+    faq_trouble_4_answer: 'Bu genellikle geçici bir sorundur. Sayfayı yenilemeyi, tarayıcı önbelleğinizi temizlemeyi veya internet bağlantınızı kontrol etmeyi deneyin. Sorun devam ederse, destek ekibimizle iletişime geçin.',
+    
+    faq_trouble_5_question: 'Memnun kalmazsam bir mockup\'ı yeniden oluşturabilir miyim?',
+    faq_trouble_5_answer: 'Evet! Mockup\'ları istediğiniz kadar (kota limitiniz dahilinde) yeniden oluşturabilirsiniz. Her oluşturma bir kota birimi veya kredi kullanır. Farklı sonuçlar için açıklamanızı veya ayarlarınızı değiştirmeyi deneyin.',
+    
+    faq_trouble_6_question: 'Yapay zeka neden bazen beklenmedik öğeler ekliyor?',
+    faq_trouble_6_answer: 'Yapay zeka oluşturma doğası gereği yaratıcıdır ve prompt\'ları farklı yorumlayabilir. Daha öngörülebilir sonuçlar almak için açıklamalarınızda çok spesifik olun ve istenmeyen öğeleri hariç tutmak için negatif prompt\'lar kullanın.',
+    
+    // FAQ Items - Privacy
+    faq_privacy_1_question: 'Verilerim ve gizliliğim nasıl korunuyor?',
+    faq_privacy_1_answer: 'Veri gizliliğini çok ciddiye alıyoruz. Yüklenen tüm görseller ve oluşturulan içerik Supabase kullanılarak şifrelenir ve güvenli bir şekilde saklanır. Verilerinizi size hizmet sağlamak dışında hiçbir amaçla kullanmıyoruz.',
+    
+    faq_privacy_2_question: 'Oluşturulan mockup\'ların sahibi kim?',
+    faq_privacy_2_answer: 'MockupSuite kullanarak oluşturduğunuz tüm mockup\'ların tam sahipliğini ve ticari haklarını siz saklarsınız. Atıf yapmadan ticari projeler dahil olmak üzere herhangi bir amaç için kullanabilirsiniz.',
+    
+    faq_privacy_3_question: 'Görsellerimi üçüncü taraflarla paylaşıyor musunuz?',
+    faq_privacy_3_answer: 'Hayır, görsellerinizi asla üçüncü taraflarla paylaşmıyoruz. Yüklemeleriniz ve oluşturulan mockup\'larınız özeldir ve yalnızca hesabınız aracılığıyla size erişilebilir.',
+    
+    faq_privacy_4_question: 'Verilerimi silebilir miyim?',
+    faq_privacy_4_answer: 'Evet, galerinizden istediğiniz zaman tek tek mockup\'ları silebilirsiniz. Tüm hesabınızı ve ilişkili tüm verileri silmek isterseniz, destek ekibimizle iletişime geçin ve talebinizi 30 gün içinde işleme koyacağız.',
+    
+    faq_privacy_5_question: 'Ödeme bilgilerim güvende mi?',
+    faq_privacy_5_answer: 'Kesinlikle. PCI-DSS uyumlu bir ödeme işlemcisi olan İyzico kullanıyoruz. Kredi kartı bilgilerinizi asla sunucularımızda saklamıyoruz. Tüm ödeme verileri şifrelenir ve ödeme ortağımız tarafından güvenli bir şekilde işlenir.',
+    
+    faq_privacy_6_question: 'Görsellerimi yapay zeka modellerini eğitmek için kullanıyor musunuz?',
+    faq_privacy_6_answer: 'Hayır, yüklediğiniz görselleri veya oluşturulan mockup\'ları yapay zeka modellerini eğitmek için kullanmıyoruz. İçeriğiniz özel kalır ve yalnızca talep ettiğiniz hizmeti sağlamak için kullanılır.',
+    
+    // Landing Page
+    landing_nav_features: 'Özellikler',
+    landing_nav_pricing: 'Fiyatlandırma',
+    landing_nav_faq: 'SSS',
+    landing_nav_contact: 'İletişim',
+    landing_get_started_free: 'Ücretsiz Başla',
+    landing_hero_title: 'Yapay Zeka ile Saniyeler İçinde Muhteşem Ürün Mockup\'ları Oluşturun.',
+    landing_hero_subtitle: 'Ürün fotoğraflarınızı profesyonel stüdyo çekimlerine dönüştürün ve anında gerçekçi mockup\'lar oluşturun. Stüdyoya gerek yok.',
+    landing_hero_generate_button: 'Mockup Oluştur',
+    landing_hero_examples_button: 'Örnekleri Gör',
+    landing_how_it_works_title: 'Nasıl Çalışır',
+    landing_step_1_title: '1. Görselinizi Yükleyin',
+    landing_step_1_description: 'Ürününüzün basit bir fotoğrafı veya benzersiz tasarım dosyanızla başlayın.',
+    landing_step_2_title: '2. Yapay Zeka Sihirini Yapsın',
+    landing_step_2_description: 'Yapay zekamız görselinizi analiz eder ve yüksek kaliteli, gerçekçi mockup\'lar oluşturur.',
+    landing_step_3_title: '3. Mockup\'ınızı İndirin',
+    landing_step_3_description: 'Mağazanız veya sosyal medyanız için stüdyo kalitesinde fotoğraflarınızı hazırlayın.',
+    landing_features_title: 'Ürününüzün Görsellerini Yükseltin',
+    landing_features_subtitle: 'Mockup oluşturmayı zahmetsiz ve profesyonel hale getiren güçlü özellikleri keşfedin.',
+    landing_feature_1_title: 'Stüdyo Kalitesinde Fotoğraflar',
+    landing_feature_1_description: 'Profesyonel bir stüdyoda çekilmiş gibi görünen fotorealistik görseller oluşturun.',
+    landing_feature_2_title: 'Anında Mockup\'lar',
+    landing_feature_2_description: 'Tasarımlarınızı giyimden baskıya kadar çeşitli ürünlere anında yerleştirin.',
+    landing_feature_3_title: 'Mükemmel Işıklandırma ve Gölgeler',
+    landing_feature_3_description: 'Yapay zekamız mükemmel gerçekçi bir sonuç için ışıklandırmayı ve gölgeleri otomatik olarak ayarlar.',
+    landing_feature_4_title: 'Sınırsız Arka Planlar',
+    landing_feature_4_description: 'Geniş bir arka plan kütüphanesinden seçin veya markanıza uygun özel bir tane oluşturun.',
+    landing_cta_title: 'Ürününüzün Görsellerini Yükseltmeye Hazır mısınız?',
+    landing_cta_subtitle: 'Yapay zeka ile ürün görsellerini dönüştüren işletmelerin arasına katılın. Profesyonel mockup\'lar oluşturmaya bugün başlayın—tamamen ücretsiz.',
+    landing_cta_button: 'Hemen Başla',
+    landing_footer_copyright: '© 2025 MockupSuite. Tüm hakları saklıdır.',
+    landing_footer_about: 'Hakkımızda',
+    landing_footer_contact: 'İletişim',
+    landing_footer_terms: 'Hizmet Şartları',
+    landing_footer_privacy: 'Gizlilik Politikası',
+    landing_faq_more_questions: 'Daha Fazla Sorunuz mu Var?',
+    landing_faq_view_all: 'Tüm SSS\'leri Görüntüle',
+    landing_back_to_home: 'Ana Sayfaya Dön',
+    landing_sign_in: 'Giriş Yap',
+    
+    // Integrations Page
+    integrations_page_title: 'Entegrasyonlar',
+    integrations_page_subtitle: 'MockupSuite\'i favori araçlarınız ve platformlarınızla bağlayın',
+    integrations_search_placeholder: 'Entegrasyonları ara...',
+    integrations_category_all: 'Tümü',
+    integrations_category_design_tools: 'Tasarım Araçları',
+    integrations_category_ecommerce: 'E-ticaret',
+    integrations_category_marketing: 'Pazarlama',
+    integrations_category_storage: 'Bulut Depolama',
+    integrations_coming_soon_title: 'Yakında',
+    integrations_no_results: '"{query}" ile eşleşen entegrasyon bulunamadı',
+    integrations_loading: 'Entegrasyonlar yükleniyor...',
+    integrations_error_loading: 'Entegrasyonlar yüklenemedi. Lütfen tekrar deneyin.',
+    
+    // Integration Card
+    integration_status_connected: 'Bağlı',
+    integration_status_coming_soon: 'Yakında',
+    integration_connect_button: 'Bağlan',
+    integration_disconnect_button: 'Bağlantıyı Kes',
+    integration_sync_button: 'Senkronize Et',
+    integration_browse_button: 'Dosyalara Gözat',
+    integration_save_button: 'Buluta Kaydet',
+    integration_sync_products_button: 'Ürünleri Senkronize Et',
+    
+    // Connection Modal
+    connection_modal_title: '{platform}\'a Bağlan',
+    connection_modal_connecting: '{platform}\'a bağlanılıyor...',
+    connection_modal_instructions: 'MockupSuite\'in {platform} hesabınıza erişmesine izin vermek için aşağıdaki düğmeye tıklayın.',
+    connection_modal_authorize_button: 'Yetkilendir',
+    connection_modal_cancel_button: 'İptal',
+    connection_modal_disconnect_title: '{platform}\'dan bağlantı kesilsin mi?',
+    connection_modal_disconnect_message: '{platform}\'dan bağlantıyı kesmek istediğinizden emin misiniz? Senkronize edilmiş verilere erişiminizi kaybedeceksiniz.',
+    connection_modal_disconnect_confirm: 'Evet, Bağlantıyı Kes',
+    connection_modal_disconnect_cancel: 'İptal',
+    
+    // Integration Success Messages
+    integration_connected_success: '{platform}\'a başarıyla bağlandı!',
+    integration_disconnected_success: '{platform}\'dan başarıyla bağlantı kesildi',
+    integration_sync_success: '{platform} ile başarıyla senkronize edildi',
+    integration_products_imported: '{platform}\'dan {count} ürün içe aktarıldı',
+    integrations_products_imported: '{count} ürün içe aktarıldı',
+    integration_mockup_published: 'Mockup {platform}\'da yayınlandı',
+    integrations_mockups_published: '{count} mockup yayınlandı',
+    integration_files_saved: '{count} dosya {platform}\'a kaydedildi',
+    integrations_files_uploaded: '{count} dosya yüklendi',
+    integration_design_imported: '{platform}\'dan tasarım içe aktarıldı',
+    
+    // Integration Error Messages
+    integration_error_connection_failed: '{platform}\'a bağlanılamadı. Lütfen tekrar deneyin.',
+    integration_error_oauth_failed: 'Yetkilendirme başarısız. Lütfen izinlerinizi kontrol edin ve tekrar deneyin.',
+    integration_error_token_expired: '{platform}\'a bağlantınızın süresi doldu. Lütfen yeniden bağlanın.',
+    integration_error_api_error: '{platform} ile iletişim kurulurken bir hata oluştu.',
+    integration_error_sync_failed: '{platform} ile veri senkronizasyonu başarısız. Lütfen daha sonra tekrar deneyin.',
+    integration_error_invalid_credentials: '{platform} için geçersiz kimlik bilgileri. Lütfen yeniden bağlanın.',
+    integration_error_rate_limit: '{platform}\'a çok fazla istek. Lütfen bekleyin ve tekrar deneyin.',
+    integration_error_network: 'Ağ hatası. Lütfen bağlantınızı kontrol edin ve tekrar deneyin.',
+    integration_error_disconnection_failed: '{platform}\'dan bağlantı kesilemedi. Lütfen tekrar deneyin.',
+    integration_error_no_files_selected: 'Dosya seçilmedi. Lütfen kaydetmek için dosya seçin.',
+    integration_error_upload_failed: '{platform}\'a dosya yüklenemedi. Lütfen tekrar deneyin.',
+    
+    // OAuth Callback Messages
+    integration_oauth_processing: 'Yetkilendirme işleniyor...',
+    integration_oauth_error: 'Yetkilendirme tamamlanamadı',
+    integration_oauth_invalid_callback: 'Geçersiz OAuth geri dönüş parametreleri',
+    integration_oauth_success_title: 'Bağlantı Başarılı!',
+    integration_oauth_error_title: 'Yetkilendirme Başarısız',
+    integration_oauth_redirecting: 'Yönlendiriliyor...',
+    integration_oauth_closing: 'Bu pencere otomatik olarak kapanacak...',
+    integration_error_no_folder_selected: 'Lütfen önce Entegrasyonlar sayfasından bir Google Drive klasörü seçin.',
+    integration_select_folder_button: 'Klasör Seç',
+    integration_select_folder_title: 'Google Drive Klasörü Seç',
+    integration_root_folder: 'Kök Klasör (Drive\'ım)',
+    integration_no_folders: 'Klasör bulunamadı. Dosyalar köke yüklenecek.',
+    integration_select_folder_confirm: 'Klasörü Seç',
+    integration_folder_selected: 'Seçilen klasör: {folder}',
 };

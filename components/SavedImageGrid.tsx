@@ -4,6 +4,8 @@ import TrashIcon from './icons/TrashIcon';
 import { useTranslations } from '../hooks/useTranslations';
 import { downloadImage } from '../utils/fileUtils';
 import * as storageService from '../services/storageService';
+import CopyIcon from './icons/CopyIcon';
+import { copyImageToClipboard } from '../utils/imageProcessing';
 
 interface SavedImageGridProps {
   images: string[]; // Storage paths
@@ -15,6 +17,26 @@ const SavedImageGrid: React.FC<SavedImageGridProps> = ({ images, onRemoveImage, 
   const { t } = useTranslations();
   const [imageUrls, setImageUrls] = useState<Map<string, string>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  const handleCopyImage = async (url: string, index: number) => {
+    try {
+      // Fetch and convert to base64
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = (reader.result as string).split(',')[1];
+        await copyImageToClipboard(base64);
+        setCopiedIndex(index);
+        setTimeout(() => setCopiedIndex(null), 2000);
+      };
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error('Failed to copy image:', error);
+      alert('Failed to copy image to clipboard');
+    }
+  };
 
   // Convert storage paths to signed URLs
   useEffect(() => {
@@ -96,7 +118,21 @@ const SavedImageGrid: React.FC<SavedImageGridProps> = ({ images, onRemoveImage, 
                 onClick={() => onImageClick(url)}
               >
                 <img src={url} alt={`Saved Mockup ${index + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center gap-2">
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center gap-2 flex-wrap p-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyImage(url, index);
+                    }}
+                    className={`flex items-center gap-2 backdrop-blur-sm font-semibold py-2 px-4 rounded-full opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-100 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+                      copiedIndex === index 
+                        ? 'bg-green-600/80 text-white' 
+                        : 'bg-gray-700/80 text-white hover:bg-gray-600/80'
+                    }`}
+                    title={copiedIndex === index ? 'Copied!' : 'Copy to clipboard'}
+                  >
+                    <CopyIcon className="h-5 w-5" />
+                  </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

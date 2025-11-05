@@ -52,7 +52,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Subscribe to auth state changes
     const unsubscribe = authService.onAuthStateChange((authUser) => {
-      setUser(authUser);
+      // Only update if user actually changed to prevent unnecessary re-renders
+      setUser((prevUser) => {
+        if (prevUser?.id === authUser?.id && prevUser?.email === authUser?.email) {
+          return prevUser; // No change, keep previous reference
+        }
+        return authUser;
+      });
       setLoading(false);
     });
 

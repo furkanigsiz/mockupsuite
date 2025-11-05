@@ -107,6 +107,8 @@ const GeneratorControls: React.FC<GeneratorControlsProps> = (props) => {
         );
     }
 
+
+
     return (
         <div className="flex flex-col gap-8">
             <ModeSwitcher currentMode={mode} onModeChange={setMode} />

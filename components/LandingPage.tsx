@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import AuthPage from './AuthPage';
+import { useTranslations } from '../hooks/useTranslations';
+import { HelpCenterPage } from './HelpCenterPage';
+import ExamplesPage from './ExamplesPage';
 
 interface LandingPageProps {
     onGetStarted: () => void;
@@ -7,9 +10,54 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
     const [showAuth, setShowAuth] = useState(false);
+    const [showHelpCenter, setShowHelpCenter] = useState(false);
+    const [showExamples, setShowExamples] = useState(false);
+    const { t } = useTranslations();
+    
+    // Refs for smooth scrolling
+    const featuresRef = useRef<HTMLDivElement>(null);
+    const pricingRef = useRef<HTMLDivElement>(null);
+    const faqRef = useRef<HTMLDivElement>(null);
+    
+    // Smooth scroll function
+    const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+        ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
 
     if (showAuth) {
         return <AuthPage />;
+    }
+    
+    if (showExamples) {
+        return <ExamplesPage onBack={() => setShowExamples(false)} onSignIn={() => setShowAuth(true)} />;
+    }
+    
+    if (showHelpCenter) {
+        return (
+            <div className="min-h-screen bg-background-light dark:bg-background-dark">
+                {/* Simple Header for Help Center */}
+                <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+                        <button 
+                            onClick={() => setShowHelpCenter(false)}
+                            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            <span className="font-medium">{t('landing_back_to_home')}</span>
+                        </button>
+                        <button 
+                            onClick={() => setShowAuth(true)}
+                            className="px-4 py-2 rounded-lg bg-primary text-gray-900 dark:text-[#111718] font-medium hover:opacity-90 transition-opacity"
+                        >
+                            {t('landing_sign_in')}
+                        </button>
+                    </div>
+                </header>
+                <HelpCenterPage />
+            </div>
+        );
     }
     return (
         <div className="relative flex w-full flex-col">
@@ -20,22 +68,48 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-b-[#283639] px-4 sm:px-10 py-3">
                             <div className="flex items-center gap-4 text-gray-800 dark:text-white">
                                 <div className="size-6">
-                                    <svg className="text-primary" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z" fill="currentColor"></path>
-                                        <path clipRule="evenodd" d="M39.998 35.764C39.9944 35.7463 39.9875 35.7155 39.9748 35.6706C39.9436 35.5601 39.8949 35.4259 39.8346 35.2825C39.8168 35.2403 39.7989 35.1993 39.7813 35.1602C38.5103 34.2887 35.9788 33.0607 33.7095 32.5189C30.9875 31.8691 27.6413 31.4783 24 31.4783C20.3587 31.4783 17.0125 31.8691 14.2905 32.5189C12.0012 33.0654 9.44505 34.3104 8.18538 35.1832C8.17384 35.2075 8.16216 35.233 8.15052 35.2592C8.09919 35.3751 8.05721 35.4886 8.02977 35.589C8.00356 35.6848 8.00039 35.7333 8.00004 35.7388C8.00004 35.739 8 35.7393 8.00004 35.7388C8.00004 35.7641 8.0104 36.0767 8.68485 36.6314C9.34546 37.1746 10.4222 37.7531 11.9291 38.2772C14.9242 39.319 19.1919 40 24 40C28.8081 40 33.0758 39.319 36.0709 38.2772C37.5778 37.7531 38.6545 37.1746 39.3151 36.6314C39.9006 36.1499 39.9857 35.8511 39.998 35.764ZM4.95178 32.7688L21.4543 6.30267C22.6288 4.4191 25.3712 4.41909 26.5457 6.30267L43.0534 32.777C43.0709 32.8052 43.0878 32.8338 43.104 32.8629L41.3563 33.8352C43.104 32.8629 43.1038 32.8626 43.104 32.8629L43.1051 32.865L43.1065 32.8675L43.1101 32.8739L43.1199 32.8918C43.1276 32.906 43.1377 32.9246 43.1497 32.9473C43.1738 32.9925 43.2062 33.0545 43.244 33.1299C43.319 33.2792 43.4196 33.489 43.5217 33.7317C43.6901 34.1321 44 34.9311 44 35.7391C44 37.4427 43.003 38.7775 41.8558 39.7209C40.6947 40.6757 39.1354 41.4464 37.385 42.0552C33.8654 43.2794 29.133 44 24 44C18.867 44 14.1346 43.2794 10.615 42.0552C8.86463 41.4464 7.30529 40.6757 6.14419 39.7209C4.99695 38.7775 3.99999 37.4427 3.99999 35.7391C3.99999 34.8725 4.29264 34.0922 4.49321 33.6393C4.60375 33.3898 4.71348 33.1804 4.79687 33.0311C4.83898 32.9556 4.87547 32.8935 4.9035 32.8471C4.91754 32.8238 4.92954 32.8043 4.93916 32.7889L4.94662 32.777L4.95178 32.7688ZM35.9868 29.004L24 9.77997L12.0131 29.004C12.4661 28.8609 12.9179 28.7342 13.3617 28.6282C16.4281 27.8961 20.0901 27.4783 24 27.4783C27.9099 27.4783 31.5719 27.8961 34.6383 28.6282C35.082 28.7342 35.5339 28.8609 35.9868 29.004Z" fill="currentColor" fillRule="evenodd"></path>
+                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="20" y="10" width="40" height="40" fill="#6366F1" rx="4"/>
+                                        <rect x="40" y="30" width="40" height="60" fill="#6366F1" rx="4"/>
                                     </svg>
                                 </div>
                                 <h2 className="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">MockupSuite</h2>
                             </div>
                             <div className="hidden md:flex flex-1 justify-end gap-8">
                                 <div className="flex items-center gap-9">
-                                    <a className="text-gray-600 dark:text-white text-sm font-medium leading-normal" href="#">Features</a>
-                                    <a className="text-gray-600 dark:text-white text-sm font-medium leading-normal" href="#">Pricing</a>
-                                    <a className="text-gray-600 dark:text-white text-sm font-medium leading-normal" href="#">Examples</a>
-                                    <a className="text-gray-600 dark:text-white text-sm font-medium leading-normal" href="#">Contact</a>
+                                    <button 
+                                        onClick={() => scrollToSection(featuresRef)} 
+                                        className="text-gray-600 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors cursor-pointer"
+                                    >
+                                        {t('landing_nav_features')}
+                                    </button>
+                                    <button 
+                                        onClick={() => scrollToSection(pricingRef)} 
+                                        className="text-gray-600 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors cursor-pointer"
+                                    >
+                                        {t('landing_nav_pricing')}
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowExamples(true)} 
+                                        className="text-gray-600 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors cursor-pointer"
+                                    >
+                                        Örnekler
+                                    </button>
+                                    <button 
+                                        onClick={() => scrollToSection(faqRef)} 
+                                        className="text-gray-600 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors cursor-pointer"
+                                    >
+                                        {t('landing_nav_faq')}
+                                    </button>
+                                    <a 
+                                        href="mailto:support@mockupsuite.com" 
+                                        className="text-gray-600 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
+                                    >
+                                        {t('landing_nav_contact')}
+                                    </a>
                                 </div>
-                                <button onClick={() => setShowAuth(true)} className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-gray-900 dark:text-[#111718] text-sm font-bold leading-normal tracking-[0.015em]">
-                                    <span className="truncate">Get Started for Free</span>
+                                <button onClick={() => setShowAuth(true)} className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-gray-900 dark:text-[#111718] text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                                    <span className="truncate">{t('landing_get_started_free')}</span>
                                 </button>
                             </div>
                         </header>
@@ -48,18 +122,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                         <div className="flex flex-col gap-6 @[480px]:min-w-[400px] @[480px]:gap-8 @[864px]:justify-center">
                                             <div className="flex flex-col gap-4 text-left">
                                                 <h1 className="text-gray-900 dark:text-white text-4xl font-bold leading-tight tracking-tighter @[480px]:text-5xl">
-                                                    Create Stunning Product Mockups in Seconds with AI.
+                                                    {t('landing_hero_title')}
                                                 </h1>
                                                 <h2 className="text-gray-600 dark:text-gray-300 text-base font-normal leading-normal @[480px]:text-lg">
-                                                    Transform your product photos into professional studio shots and generate realistic mockups instantly. No studio required.
+                                                    {t('landing_hero_subtitle')}
                                                 </h2>
                                             </div>
                                             <div className="flex-wrap gap-3 flex">
                                                 <button onClick={() => setShowAuth(true)} className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-primary text-gray-900 dark:text-[#111718] text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base">
-                                                    <span className="truncate">Generate Mockup</span>
+                                                    <span className="truncate">{t('landing_hero_generate_button')}</span>
                                                 </button>
-                                                <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-gray-200 dark:bg-[#283639] text-gray-800 dark:text-white text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base">
-                                                    <span className="truncate">See Examples</span>
+                                                <button onClick={() => setShowExamples(true)} className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-gray-200 dark:bg-[#283639] text-gray-800 dark:text-white text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base">
+                                                    <span className="truncate">{t('landing_hero_examples_button')}</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -67,28 +141,28 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                 </div>
                             </div>
                             {/* How It Works Section */}
-                            <div className="py-16 sm:py-24">
-                                <h2 className="text-gray-900 dark:text-white text-2xl font-bold leading-tight tracking-tight px-4 pb-8 pt-5 text-center">How It Works</h2>
+                            <div ref={featuresRef} className="py-16 sm:py-24">
+                                <h2 className="text-gray-900 dark:text-white text-2xl font-bold leading-tight tracking-tight px-4 pb-8 pt-5 text-center">{t('landing_how_it_works_title')}</h2>
                                 <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 p-4">
                                     <div className="flex flex-1 gap-4 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 flex-col text-center items-center">
                                         <span className="material-symbols-outlined text-primary text-3xl">upload_file</span>
                                         <div className="flex flex-col gap-1">
-                                            <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">1. Upload Your Image</h3>
-                                            <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">Start with a simple photo of your product or your unique design file.</p>
+                                            <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">{t('landing_step_1_title')}</h3>
+                                            <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">{t('landing_step_1_description')}</p>
                                         </div>
                                     </div>
                                     <div className="flex flex-1 gap-4 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 flex-col text-center items-center">
                                         <span className="material-symbols-outlined text-primary text-3xl">auto_awesome</span>
                                         <div className="flex flex-col gap-1">
-                                            <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">2. Let AI Work Its Magic</h3>
-                                            <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">Our AI analyzes your image and generates high-quality, realistic mockups.</p>
+                                            <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">{t('landing_step_2_title')}</h3>
+                                            <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">{t('landing_step_2_description')}</p>
                                         </div>
                                     </div>
                                     <div className="flex flex-1 gap-4 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 flex-col text-center items-center">
                                         <span className="material-symbols-outlined text-primary text-3xl">download</span>
                                         <div className="flex flex-col gap-1">
-                                            <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">3. Download Your Mockup</h3>
-                                            <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">Get your studio-quality photos ready for your store or social media.</p>
+                                            <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">{t('landing_step_3_title')}</h3>
+                                            <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">{t('landing_step_3_description')}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -98,66 +172,341 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                 <div className="flex flex-col gap-10 px-4 py-10 @container">
                                     <div className="flex flex-col gap-4 max-w-[720px] mx-auto text-center">
                                         <h1 className="text-gray-900 dark:text-white text-[32px] font-bold leading-tight @[480px]:text-4xl">
-                                            Elevate Your Product's Visuals
+                                            {t('landing_features_title')}
                                         </h1>
-                                        <p className="text-gray-600 dark:text-gray-300 text-base font-normal leading-normal">Discover the powerful features that make mockup creation effortless and professional.</p>
+                                        <p className="text-gray-600 dark:text-gray-300 text-base font-normal leading-normal">{t('landing_features_subtitle')}</p>
                                     </div>
                                     <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 p-0">
                                         <div className="flex flex-1 gap-3 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 flex-col">
                                             <span className="material-symbols-outlined text-primary text-2xl">photo_camera</span>
                                             <div className="flex flex-col gap-1">
-                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">Studio-Quality Photos</h3>
-                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">Generate photorealistic images that look like they were taken in a professional studio.</p>
+                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">{t('landing_feature_1_title')}</h3>
+                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">{t('landing_feature_1_description')}</p>
                                             </div>
                                         </div>
                                         <div className="flex flex-1 gap-3 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 flex-col">
                                             <span className="material-symbols-outlined text-primary text-2xl">inventory_2</span>
                                             <div className="flex flex-col gap-1">
-                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">Instant Mockups</h3>
-                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">Instantly place your designs on a variety of products, from apparel to print.</p>
+                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">{t('landing_feature_2_title')}</h3>
+                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">{t('landing_feature_2_description')}</p>
                                             </div>
                                         </div>
                                         <div className="flex flex-1 gap-3 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 flex-col">
                                             <span className="material-symbols-outlined text-primary text-2xl">light_mode</span>
                                             <div className="flex flex-col gap-1">
-                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">Perfect Lighting &amp; Shadows</h3>
-                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">Our AI automatically adjusts lighting and shadows for a perfectly realistic result.</p>
+                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">{t('landing_feature_3_title')}</h3>
+                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">{t('landing_feature_3_description')}</p>
                                             </div>
                                         </div>
                                         <div className="flex flex-1 gap-3 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 flex-col">
                                             <span className="material-symbols-outlined text-primary text-2xl">image</span>
                                             <div className="flex flex-col gap-1">
-                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">Endless Backgrounds</h3>
-                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">Choose from a vast library of backgrounds or generate a custom one to match your brand.</p>
+                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">{t('landing_feature_4_title')}</h3>
+                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">{t('landing_feature_4_description')}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-1 gap-3 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 flex-col">
+                                            <span className="material-symbols-outlined text-primary text-2xl">video_library</span>
+                                            <div className="flex flex-col gap-1">
+                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">Video Üretimi</h3>
+                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">Ürünlerinizi dinamik videolara dönüştürün ve sosyal medyada öne çıkın</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-1 gap-3 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 flex-col">
+                                            <span className="material-symbols-outlined text-primary text-2xl">layers</span>
+                                            <div className="flex flex-col gap-1">
+                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">Tasarım Yerleştirme</h3>
+                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">Tasarımlarınızı tişört, kupa, telefon kılıfı gibi ürünlere otomatik yerleştirin</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-1 gap-3 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 flex-col">
+                                            <span className="material-symbols-outlined text-primary text-2xl">auto_fix_high</span>
+                                            <div className="flex flex-col gap-1">
+                                                <h3 className="text-gray-900 dark:text-white text-base font-bold leading-tight">Arka Plan Silme</h3>
+                                                <p className="text-gray-500 dark:text-[#9db4b9] text-sm font-normal leading-normal">AI ile ürün fotoğraflarınızın arka planını tek tıkla kaldırın</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            {/* Testimonial Section */}
-                            <div className="py-16 sm:py-24">
-                                <div className="flex flex-col gap-8 items-center text-center px-4">
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase tracking-widest">TRUSTED BY TEAMS WORLDWIDE</p>
-                                    <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
-                                        <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">Logoipsum</p>
-                                        <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">Aperture</p>
-                                        <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">Echelon</p>
-                                        <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">Monolith</p>
-                                        <p className="text-2xl font-bold text-gray-400 dark:text-gray-500">Quantum</p>
+                            {/* Pricing Section */}
+                            <div ref={pricingRef} className="py-16 sm:py-24">
+                                <div className="flex flex-col gap-10 px-4 py-10">
+                                    <div className="flex flex-col gap-4 max-w-[720px] mx-auto text-center">
+                                        <h2 className="text-gray-900 dark:text-white text-[32px] font-bold leading-tight @[480px]:text-4xl">
+                                            {t('pricing_title')}
+                                        </h2>
+                                        <p className="text-gray-600 dark:text-gray-300 text-base font-normal leading-normal">
+                                            {t('pricing_subtitle')}
+                                        </p>
                                     </div>
-                                    <div className="max-w-2xl mx-auto pt-8">
-                                        <blockquote className="text-lg italic text-gray-700 dark:text-gray-300">"MockupSuite has revolutionized how we showcase our products. The quality is incredible, and it saves us countless hours and thousands of dollars on photoshoots."</blockquote>
-                                        <p className="mt-4 font-semibold text-gray-800 dark:text-white">Jane Doe, Founder of CoolBrand</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto w-full">
+                                        {/* Free Plan */}
+                                        <div className="flex flex-col justify-between gap-6 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 transition-all duration-200 hover:shadow-lg">
+                                            <div className="flex flex-col gap-6">
+                                                <div className="flex flex-col gap-2">
+                                                    <h3 className="text-gray-900 dark:text-white text-xl font-bold">{t('pricing_plan_free_name')}</h3>
+                                                    <p className="text-gray-500 dark:text-gray-400 text-sm">{t('pricing_plan_free_description')}</p>
+                                                </div>
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className="text-4xl font-bold text-gray-900 dark:text-white">0</span>
+                                                    <span className="text-gray-500 dark:text-gray-400 text-sm">TRY{t('pricing_per_month')}</span>
+                                                </div>
+                                                <ul className="flex flex-col gap-3 flex-grow">
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_quota', { quota: '5' })}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_watermark')}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_community_support')}</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <button onClick={() => setShowAuth(true)} className="w-full py-3 px-4 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors mt-auto">
+                                                {t('pricing_start_free')}
+                                            </button>
+                                        </div>
+
+                                        {/* Starter Plan */}
+                                        <div className="flex flex-col justify-between gap-6 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 transition-all duration-200 hover:shadow-lg">
+                                            <div className="flex flex-col gap-6">
+                                                <div className="flex flex-col gap-2">
+                                                    <h3 className="text-gray-900 dark:text-white text-xl font-bold">{t('pricing_plan_starter_name')}</h3>
+                                                    <p className="text-gray-500 dark:text-gray-400 text-sm">{t('pricing_plan_starter_description')}</p>
+                                                </div>
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className="text-4xl font-bold text-gray-900 dark:text-white">299</span>
+                                                    <span className="text-gray-500 dark:text-gray-400 text-sm">TRY{t('pricing_per_month')}</span>
+                                                </div>
+                                                <ul className="flex flex-col gap-3 flex-grow">
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_quota', { quota: '50' })}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_no_watermark')}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_high_resolution')}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_email_support')}</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <button onClick={() => setShowAuth(true)} className="w-full py-3 px-4 rounded-lg bg-primary text-gray-900 dark:text-[#111718] font-bold hover:opacity-90 transition-opacity mt-auto">
+                                                {t('pricing_choose_plan')}
+                                            </button>
+                                        </div>
+
+                                        {/* Pro Plan - Most Popular */}
+                                        <div className="flex flex-col justify-between gap-6 rounded-xl border-2 border-primary bg-white dark:bg-[#1c2527] p-6 relative transition-all duration-200 hover:shadow-xl">
+                                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-gray-900 dark:text-[#111718] px-4 py-1 rounded-full text-xs font-bold">
+                                                {t('pricing_most_popular')}
+                                            </div>
+                                            <div className="flex flex-col gap-6">
+                                                <div className="flex flex-col gap-2">
+                                                    <h3 className="text-gray-900 dark:text-white text-xl font-bold">{t('pricing_plan_pro_name')}</h3>
+                                                    <p className="text-gray-500 dark:text-gray-400 text-sm">{t('pricing_plan_pro_description')}</p>
+                                                </div>
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className="text-4xl font-bold text-gray-900 dark:text-white">649</span>
+                                                    <span className="text-gray-500 dark:text-gray-400 text-sm">TRY{t('pricing_per_month')}</span>
+                                                </div>
+                                                <ul className="flex flex-col gap-3 flex-grow">
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_quota', { quota: '200' })}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_no_watermark')}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_high_resolution')}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_priority_queue')}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_priority_support')}</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <button onClick={() => setShowAuth(true)} className="w-full py-3 px-4 rounded-lg bg-primary text-gray-900 dark:text-[#111718] font-bold hover:opacity-90 transition-opacity mt-auto">
+                                                {t('pricing_choose_plan')}
+                                            </button>
+                                        </div>
+
+                                        {/* Business Plan */}
+                                        <div className="flex flex-col justify-between gap-6 rounded-xl border border-gray-200 dark:border-[#3b4f54] bg-white dark:bg-[#1c2527] p-6 transition-all duration-200 hover:shadow-lg">
+                                            <div className="flex flex-col gap-6">
+                                                <div className="flex flex-col gap-2">
+                                                    <h3 className="text-gray-900 dark:text-white text-xl font-bold">{t('pricing_plan_business_name')}</h3>
+                                                    <p className="text-gray-500 dark:text-gray-400 text-sm">{t('pricing_plan_business_description')}</p>
+                                                </div>
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className="text-4xl font-bold text-gray-900 dark:text-white">1,199</span>
+                                                    <span className="text-gray-500 dark:text-gray-400 text-sm">TRY{t('pricing_per_month')}</span>
+                                                </div>
+                                                <ul className="flex flex-col gap-3 flex-grow">
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_quota', { quota: '700' })}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_no_watermark')}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_high_resolution')}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_priority_queue')}</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-300">{t('pricing_feature_priority_support')}</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <button onClick={() => setShowAuth(true)} className="w-full py-3 px-4 rounded-lg bg-primary text-gray-900 dark:text-[#111718] font-bold hover:opacity-90 transition-opacity mt-auto">
+                                                {t('pricing_choose_plan')}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            {/* FAQ Section */}
+                            <div ref={faqRef} className="py-16 sm:py-24">
+                                <div className="flex flex-col gap-10 px-4 py-10">
+                                    <div className="flex flex-col gap-4 max-w-[720px] mx-auto text-center">
+                                        <h2 className="text-gray-900 dark:text-white text-[32px] font-bold leading-tight @[480px]:text-4xl">
+                                            {t('help_center_title')}
+                                        </h2>
+                                        <p className="text-gray-600 dark:text-gray-300 text-base font-normal leading-normal">
+                                            {t('help_center_subtitle')}
+                                        </p>
+                                    </div>
+                                    <div className="max-w-3xl mx-auto w-full">
+                                        <div className="space-y-4">
+                                            {/* FAQ Item 1 */}
+                                            <details className="group border border-gray-200 dark:border-[#3b4f54] rounded-lg bg-white dark:bg-[#1c2527] transition-all duration-200 hover:shadow-md">
+                                                <summary className="flex items-center justify-between cursor-pointer p-6 text-left transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg">
+                                                    <span className="text-base font-medium text-gray-900 dark:text-white">{t('faq_gs_1_question')}</span>
+                                                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-in-out group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </summary>
+                                                <div className="px-6 pb-6 pt-2">
+                                                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                                        {t('faq_gs_1_answer')}
+                                                    </p>
+                                                </div>
+                                            </details>
+
+                                            {/* FAQ Item 2 */}
+                                            <details className="group border border-gray-200 dark:border-[#3b4f54] rounded-lg bg-white dark:bg-[#1c2527] transition-all duration-200 hover:shadow-md">
+                                                <summary className="flex items-center justify-between cursor-pointer p-6 text-left transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg">
+                                                    <span className="text-base font-medium text-gray-900 dark:text-white">{t('faq_gs_2_question')}</span>
+                                                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-in-out group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </summary>
+                                                <div className="px-6 pb-6 pt-2">
+                                                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                                        {t('faq_gs_2_answer')}
+                                                    </p>
+                                                </div>
+                                            </details>
+
+                                            {/* FAQ Item 3 */}
+                                            <details className="group border border-gray-200 dark:border-[#3b4f54] rounded-lg bg-white dark:bg-[#1c2527] transition-all duration-200 hover:shadow-md">
+                                                <summary className="flex items-center justify-between cursor-pointer p-6 text-left transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg">
+                                                    <span className="text-base font-medium text-gray-900 dark:text-white">{t('faq_billing_1_question')}</span>
+                                                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-in-out group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </summary>
+                                                <div className="px-6 pb-6 pt-2">
+                                                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                                        {t('faq_billing_1_answer')}
+                                                    </p>
+                                                </div>
+                                            </details>
+
+                                            {/* FAQ Item 4 */}
+                                            <details className="group border border-gray-200 dark:border-[#3b4f54] rounded-lg bg-white dark:bg-[#1c2527] transition-all duration-200 hover:shadow-md">
+                                                <summary className="flex items-center justify-between cursor-pointer p-6 text-left transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg">
+                                                    <span className="text-base font-medium text-gray-900 dark:text-white">{t('faq_ai_1_question')}</span>
+                                                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-in-out group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </summary>
+                                                <div className="px-6 pb-6 pt-2">
+                                                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                                        {t('faq_ai_1_answer')}
+                                                    </p>
+                                                </div>
+                                            </details>
+
+                                            {/* FAQ Item 5 */}
+                                            <details className="group border border-gray-200 dark:border-[#3b4f54] rounded-lg bg-white dark:bg-[#1c2527] transition-all duration-200 hover:shadow-md">
+                                                <summary className="flex items-center justify-between cursor-pointer p-6 text-left transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg">
+                                                    <span className="text-base font-medium text-gray-900 dark:text-white">{t('faq_billing_2_question')}</span>
+                                                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-in-out group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </summary>
+                                                <div className="px-6 pb-6 pt-2">
+                                                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                                        {t('faq_billing_2_answer')}
+                                                    </p>
+                                                </div>
+                                            </details>
+                                        </div>
+                                        
+                                        {/* View All FAQs Button */}
+                                        <div className="mt-8 text-center">
+                                            <div className="inline-flex flex-col items-center gap-3">
+                                                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                                                    {t('landing_faq_more_questions')}
+                                                </p>
+                                                <button 
+                                                    onClick={() => setShowHelpCenter(true)}
+                                                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white dark:hover:text-gray-900 transition-all duration-200 ease-in-out"
+                                                >
+                                                    <span>{t('landing_faq_view_all')}</span>
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Final CTA Section */}
                             <div className="py-16 sm:py-24">
                                 <div className="bg-gray-100 dark:bg-[#1c2527] rounded-xl p-10 sm:p-16 flex flex-col items-center text-center gap-6">
-                                    <h2 className="text-gray-900 dark:text-white text-3xl sm:text-4xl font-bold tracking-tight">Ready to Elevate Your Product's Visuals?</h2>
-                                    <p className="text-gray-600 dark:text-gray-300 max-w-xl">Join thousands of creators and businesses who are creating stunning visuals without the hassle. Get started for free today.</p>
-                                    <button onClick={() => setShowAuth(true)} className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-gray-900 dark:text-[#111718] text-base font-bold leading-normal tracking-[0.015em]">
-                                        <span className="truncate">Get Started Now</span>
+                                    <h2 className="text-gray-900 dark:text-white text-3xl sm:text-4xl font-bold tracking-tight">{t('landing_cta_title')}</h2>
+                                    <p className="text-gray-600 dark:text-gray-300 max-w-xl">{t('landing_cta_subtitle')}</p>
+                                    <button onClick={() => setShowAuth(true)} className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-gray-900 dark:text-[#111718] text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                                        <span className="truncate">{t('landing_cta_button')}</span>
                                     </button>
                                 </div>
                             </div>
@@ -167,15 +516,32 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             <div className="flex flex-col md:flex-row justify-between items-center gap-8 px-4">
                                 <div className="flex items-center gap-3">
                                     <div className="size-5">
-                                        <svg className="text-primary" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z" fill="currentColor"></path><path clipRule="evenodd" d="M39.998 35.764C39.9944 35.7463 39.9875 35.7155 39.9748 35.6706C39.9436 35.5601 39.8949 35.4259 39.8346 35.2825C39.8168 35.2403 39.7989 35.1993 39.7813 35.1602C38.5103 34.2887 35.9788 33.0607 33.7095 32.5189C30.9875 31.8691 27.6413 31.4783 24 31.4783C20.3587 31.4783 17.0125 31.8691 14.2905 32.5189C12.0012 33.0654 9.44505 34.3104 8.18538 35.1832C8.17384 35.2075 8.16216 35.233 8.15052 35.2592C8.09919 35.3751 8.05721 35.4886 8.02977 35.589C8.00356 35.6848 8.00039 35.7333 8.00004 35.7388C8.00004 35.739 8 35.7393 8.00004 35.7388C8.00004 35.7641 8.0104 36.0767 8.68485 36.6314C9.34546 37.1746 10.4222 37.7531 11.9291 38.2772C14.9242 39.319 19.1919 40 24 40C28.8081 40 33.0758 39.319 36.0709 38.2772C37.5778 37.7531 38.6545 37.1746 39.3151 36.6314C39.9006 36.1499 39.9857 35.8511 39.998 35.764ZM4.95178 32.7688L21.4543 6.30267C22.6288 4.4191 25.3712 4.41909 26.5457 6.30267L43.0534 32.777C43.0709 32.8052 43.0878 32.8338 43.104 32.8629L41.3563 33.8352C43.104 32.8629 43.1038 32.8626 43.104 32.8629L43.1051 32.865L43.1065 32.8675L43.1101 32.8739L43.1199 32.8918C43.1276 32.906 43.1377 32.9246 43.1497 32.9473C43.1738 32.9925 43.2062 33.0545 43.244 33.1299C43.319 33.2792 43.4196 33.489 43.5217 33.7317C43.6901 34.1321 44 34.9311 44 35.7391C44 37.4427 43.003 38.7775 41.8558 39.7209C40.6947 40.6757 39.1354 41.4464 37.385 42.0552C33.8654 43.2794 29.133 44 24 44C18.867 44 14.1346 43.2794 10.615 42.0552C8.86463 41.4464 7.30529 40.6757 6.14419 39.7209C4.99695 38.7775 3.99999 37.4427 3.99999 35.7391C3.99999 34.8725 4.29264 34.0922 4.49321 33.6393C4.60375 33.3898 4.71348 33.1804 4.79687 33.0311C4.83898 32.9556 4.87547 32.8935 4.9035 32.8471C4.91754 32.8238 4.92954 32.8043 4.93916 32.7889L4.94662 32.777L4.95178 32.7688ZM35.9868 29.004L24 9.77997L12.0131 29.004C12.4661 28.8609 12.9179 28.7342 13.3617 28.6282C16.4281 27.8961 20.0901 27.4783 24 27.4783C27.9099 27.4783 31.5719 27.8961 34.6383 28.6282C35.082 28.7342 35.5339 28.8609 35.9868 29.004Z" fill="currentColor" fillRule="evenodd"></path></svg>
+                                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="20" y="10" width="40" height="40" fill="#6366F1" rx="4"/>
+                                            <rect x="40" y="30" width="40" height="60" fill="#6366F1" rx="4"/>
+                                        </svg>
                                     </div>
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">© 2024 MockupSuite. All rights reserved.</span>
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('landing_footer_copyright')}</span>
                                 </div>
                                 <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-                                    <a className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary" href="#">About Us</a>
-                                    <a className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary" href="#">Contact</a>
-                                    <a className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary" href="#">Terms of Service</a>
-                                    <a className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary" href="#">Privacy Policy</a>
+                                    <button 
+                                        onClick={() => window.open('/contact', '_blank')}
+                                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
+                                    >
+                                        {t('landing_footer_contact')}
+                                    </button>
+                                    <button 
+                                        onClick={() => window.open('/terms-of-service', '_blank')}
+                                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
+                                    >
+                                        {t('landing_footer_terms')}
+                                    </button>
+                                    <button 
+                                        onClick={() => window.open('/privacy-policy', '_blank')}
+                                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
+                                    >
+                                        {t('landing_footer_privacy')}
+                                    </button>
                                 </div>
                             </div>
                         </footer>
